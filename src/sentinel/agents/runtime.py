@@ -1,39 +1,31 @@
 """The orchestration state machine (PRD F-04, Figure 3).
 
-What this is, and why it is not LangGraph
------------------------------------------
-PRD Section 5.6 names LangGraph, and LangGraph is a good library. This module is
-a deliberate substitution, for the same reason :mod:`sentinel.ml.nn` is a
-hand-written engine instead of PyTorch, and the reason is worth stating plainly
-because "we wrote our own framework" is usually the wrong answer:
+What this is: the PRD's LangGraph state machine
+-----------------------------------------------
+PRD Section 5.6 names LangGraph as the orchestrator, and this module runs on it:
+:meth:`GraphSpec.compile` builds a real :class:`langgraph.graph.StateGraph` whose nodes
+are the agents, whose routing is LangGraph conditional edges, and whose execution
+loop is LangGraph's own. The ``GraphSpec`` builder API (``add_node``, ``add_edge``,
+``add_conditional_edges``, ``set_entry_point``, ``compile(interrupt_before=...)``) is
+kept so the agents did not change.
 
-*   **F-04's acceptance criterion is this module's semantics.** *"Any node can
-    pause for human input and resume with full context intact"* is not a property
-    of the agents; it is a property of the interrupt/checkpoint/resume loop. Using
-    a library for it would mean the project's central orchestration claim is
-    tested by mocking the library that implements it. Owning ~350 lines means
-    ``test_runtime.py`` can assert the claim directly — and does, by resuming at
-    *every* node in the graph and checking the finished state is hash-identical to
-    an uninterrupted run.
-*   **The checkpoint must be a contract, not a pickle.** Section 5.7's
+What sits *around* LangGraph, and why:
+
+*   **The durable checkpoint is a contract, not a pickle.** Section 5.7's
     tamper-evidence requirement reaches the orchestrator: a resumable state
-    carries approval status, so a checkpoint store that round-trips through
-    msgpack without a verifiable hash is an approval-forgery path. The state here
-    is a frozen pydantic contract that canonicalizes, hashes and revalidates on
-    load, which is a different storage contract than a general workflow engine
-    offers.
+    carries approval status, so a store that round-trips through msgpack without a
+    verifiable hash is an approval-forgery path. Every LangGraph superstep therefore
+    writes a hash-chained :class:`~sentinel.agents.checkpoint.Checkpoint`, and
+    ``resume``/``recover`` rebuild the run from that store (never from a
+    caller-supplied state) and re-enter the LangGraph graph at the saved cursor.
+*   **The human gate stops *before* the node.** ``interrupt_before`` semantics are
+    implemented in the node wrapper so the interrupt, its reason and its subject are
+    recorded in the checkpoint that the approval queue reads, and survive a process
+    restart (an in-memory LangGraph saver would not).
 *   **Untrusted text must survive the round trip as untrusted.**
-    ``Alert.raw_payload`` is an :class:`~sentinel.core.untrusted.UntrustedText`.
-    Any checkpointer that serializes it to ``str`` and restores it as ``str`` has
-    silently deleted the type that prevents it being interpolated into a prompt.
+    ``Alert.raw_payload`` is an :class:`~sentinel.core.untrusted.UntrustedText`;
     :class:`~sentinel.agents.state.IncidentState` restores it through the schema's
-    own validator, so the property is preserved by construction.
-
-The API is deliberately shaped like LangGraph's — ``add_node``, ``add_edge``,
-``add_conditional_edges``, ``set_entry_point``, ``compile(interrupt_before=...)``,
-``invoke``/``resume`` — so the substitution stays a substitution. Porting to
-LangGraph is a rewrite of this file and nothing else, which is the property that
-makes the deviation defensible rather than merely convenient.
+    own validator on load.
 
 Execution model
 ---------------
@@ -61,7 +53,12 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Final
+from typing import Any, Final, TypedDict
+
+from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END as LG_END
+from langgraph.graph import START as LG_START
+from langgraph.graph import StateGraph
 
 from sentinel.agents.checkpoint import Checkpoint, Checkpointer, InMemoryCheckpointer
 from sentinel.agents.state import (
@@ -259,7 +256,7 @@ class GraphSpec:
         if step_budget < 1:
             raise OrchestrationError("step_budget must be at least 1")
 
-        return CompiledGraph(
+        compiled = CompiledGraph(
             nodes=dict(self._nodes),
             edges=dict(self._edges),
             conditional={k: (r, dict(m)) for k, (r, m) in self._conditional.items()},
@@ -268,6 +265,8 @@ class GraphSpec:
             checkpointer=checkpointer if checkpointer is not None else InMemoryCheckpointer(),
             step_budget=step_budget,
         )
+        object.__setattr__(compiled, "lg", compiled._build_langgraph())
+        return compiled
 
     def _reachable_from(self, start: str) -> set[str]:
         seen: set[str] = set()
@@ -312,6 +311,8 @@ class CompiledGraph:
     interrupt_before: frozenset[str]
     checkpointer: Checkpointer
     step_budget: int
+    #: The compiled :class:`langgraph.graph.StateGraph` that executes the run.
+    lg: Any = None
 
     # --- running -------------------------------------------------------------- #
 
@@ -411,8 +412,7 @@ class CompiledGraph:
         state = head.state
         if state.status.is_terminal:
             raise OrchestrationError(
-                f"thread {thread_id!r} already finished ({state.status.value}); nothing "
-                "to recover"
+                f"thread {thread_id!r} already finished ({state.status.value}); nothing to recover"
             )
         if state.is_waiting:
             raise OrchestrationError(
@@ -426,22 +426,67 @@ class CompiledGraph:
         )
         return self._drive(state, ctx, step=head.step + 1)
 
-    # --- the loop ------------------------------------------------------------- #
+    # --- the LangGraph loop ---------------------------------------------------- #
+
+    def _build_langgraph(self) -> Any:
+        """Build the LangGraph ``StateGraph`` that executes this graph.
+
+        Graph state is ``{"state": IncidentState, "halt": bool}``. Every agent is a
+        LangGraph node; after each node the conditional edge follows the incident's
+        cursor (the router already ran inside the node wrapper), or stops when the
+        wrapper set ``halt`` (interrupt, failure or completion). ``START`` is a
+        conditional edge on the cursor too, so ``resume`` and ``recover`` re-enter
+        the graph at the checkpointed node.
+        """
+        graph: StateGraph = StateGraph(_GraphState)
+        for name in self.nodes:
+            graph.add_node(name, self._wrap(name))
+        graph.add_node(_FINALIZE, self._finalize)
+
+        targets = {name: name for name in self.nodes}
+        targets[_FINALIZE] = _FINALIZE
+        targets[_HALT] = LG_END
+
+        graph.add_conditional_edges(LG_START, _follow_cursor, targets)
+        for name in self.nodes:
+            graph.add_conditional_edges(name, _follow_cursor, targets)
+        graph.add_edge(_FINALIZE, LG_END)
+        return graph.compile()
 
     def _drive(self, state: IncidentState, ctx: RunContext, *, step: int) -> RunResult:
-        written: list[Checkpoint] = []
-        executed = 0
-        decision = ctx.decision
+        run = _Run(ctx=ctx, decision=ctx.decision, step=step, state=state)
+        self.lg.invoke(
+            {"state": state, "halt": False},
+            config={
+                "configurable": {"run": run},
+                "recursion_limit": self.step_budget * 2 + 16,
+            },
+        )
+        return RunResult(
+            state=run.state, checkpoints=tuple(run.written), steps_executed=run.executed
+        )
 
-        while True:
-            if state.cursor == END:
-                if not state.status.is_terminal:
-                    state = state.finished(IncidentStatus.COMPLETED, at=ctx.now())
-                written.append(self._save(state, ctx, step=step))
-                return RunResult(state=state, checkpoints=tuple(written), steps_executed=executed)
+    def _finalize(self, gs: _GraphState, config: RunnableConfig) -> dict[str, Any]:
+        """Cursor reached END: mark the incident completed and write the last checkpoint."""
+        run: _Run = config["configurable"]["run"]
+        state = gs["state"]
+        if not state.status.is_terminal:
+            state = state.finished(IncidentStatus.COMPLETED, at=run.ctx.now())
+        run.written.append(self._save(state, run.ctx, step=run.step))
+        run.state = state
+        return {"state": state, "halt": True}
 
-            node_name = state.cursor
-            if node_name in self.interrupt_before and decision is None:
+    def _wrap(self, node_name: str) -> Callable[[_GraphState, RunnableConfig], dict[str, Any]]:
+        def run_node(gs: _GraphState, config: RunnableConfig) -> dict[str, Any]:
+            run: _Run = config["configurable"]["run"]
+            ctx = run.ctx
+            state = gs["state"]
+
+            def halt(final: IncidentState) -> dict[str, Any]:
+                run.state = final
+                return {"state": final, "halt": True}
+
+            if node_name in self.interrupt_before and run.decision is None:
                 waiting = state.waiting_on(
                     Interrupt(
                         node=node_name,
@@ -450,12 +495,10 @@ class CompiledGraph:
                         requested_at=ctx.now(),
                     )
                 )
-                written.append(self._save(waiting, ctx, step=step))
-                return RunResult(
-                    state=waiting, checkpoints=tuple(written), steps_executed=executed
-                )
+                run.written.append(self._save(waiting, ctx, step=run.step))
+                return halt(waiting)
 
-            if executed >= self.step_budget:
+            if run.executed >= self.step_budget:
                 failed = state.finished(
                     IncidentStatus.FAILED,
                     at=ctx.now(),
@@ -464,19 +507,18 @@ class CompiledGraph:
                         f"{node_name!r}; the route is cycling"
                     ),
                 )
-                written.append(self._save(failed, ctx, step=step))
-                return RunResult(state=failed, checkpoints=tuple(written), steps_executed=executed)
+                run.written.append(self._save(failed, ctx, step=run.step))
+                return halt(failed)
 
-            node = self.nodes[node_name]
-            node_ctx = ctx.with_decision(decision)
+            node_ctx = ctx.with_decision(run.decision)
             # A decision is consumed by exactly one node. Leaving it on the context
             # would let a later gate in the same run reuse an approval that was
             # granted for a different action.
-            decision = None
+            run.decision = None
             started_at = ctx.now()
 
             try:
-                produced = node(state, node_ctx)
+                produced = self.nodes[node_name](state, node_ctx)
             except Exception as exc:
                 ended_at = ctx.now()
                 recorded = state.with_step(
@@ -494,10 +536,10 @@ class CompiledGraph:
                     at=ended_at,
                     error=f"node {node_name!r} raised {type(exc).__name__}: {exc}"[:2000],
                 )
-                written.append(self._save(failed, ctx, step=step))
-                return RunResult(state=failed, checkpoints=tuple(written), steps_executed=executed)
+                run.written.append(self._save(failed, ctx, step=run.step))
+                return halt(failed)
 
-            executed += 1
+            run.executed += 1
             ended_at = ctx.now()
             if produced.incident_id != state.incident_id:
                 raise OrchestrationError(
@@ -505,9 +547,7 @@ class CompiledGraph:
                 )
 
             if produced.is_waiting:
-                # A node may raise its own interrupt (the approval gate does not,
-                # but a future human-in-the-loop node might). Record the step and
-                # stop; the cursor stays on whatever the node set.
+                # A node may raise its own interrupt; record the step and stop.
                 recorded = produced.with_step(
                     StepRecord(
                         node=node_name,
@@ -518,10 +558,8 @@ class CompiledGraph:
                         detail=produced.interrupt.reason if produced.interrupt else "",
                     )
                 )
-                written.append(self._save(recorded, ctx, step=step))
-                return RunResult(
-                    state=recorded, checkpoints=tuple(written), steps_executed=executed
-                )
+                run.written.append(self._save(recorded, ctx, step=run.step))
+                return halt(recorded)
 
             recorded = produced.with_step(
                 StepRecord(
@@ -533,17 +571,17 @@ class CompiledGraph:
                 )
             )
             if recorded.status.is_terminal:
-                # A node that finishes the run (a dismissal, say) gets one terminal
-                # checkpoint, not two: falling through to the loop top would write a
-                # second identical one and make the history lie about how many steps
-                # the incident took.
-                written.append(self._save(recorded, ctx, step=step))
-                return RunResult(
-                    state=recorded, checkpoints=tuple(written), steps_executed=executed
-                )
-            state = recorded.routed_to(self._next(node_name, recorded), at=ended_at)
-            written.append(self._save(state, ctx, step=step))
-            step += 1
+                # One terminal checkpoint, not two.
+                run.written.append(self._save(recorded, ctx, step=run.step))
+                return halt(recorded)
+            routed = recorded.routed_to(self._next(node_name, recorded), at=ended_at)
+            run.written.append(self._save(routed, ctx, step=run.step))
+            run.step += 1
+            run.state = routed
+            return {"state": routed, "halt": False}
+
+        run_node.__name__ = f"node_{node_name}"
+        return run_node
 
     def _next(self, node_name: str, state: IncidentState) -> str:
         if node_name in self.edges:
@@ -552,8 +590,7 @@ class CompiledGraph:
         key = router(state)
         if key not in mapping:
             raise OrchestrationError(
-                f"router for {node_name!r} returned {key!r}, which is not one of "
-                f"{sorted(mapping)}"
+                f"router for {node_name!r} returned {key!r}, which is not one of {sorted(mapping)}"
             )
         return mapping[key]
 
@@ -584,6 +621,37 @@ class CompiledGraph:
             if head is not None and head.state.is_waiting:
                 waiting.append(head.state)
         return tuple(waiting)
+
+
+_FINALIZE: Final[str] = "__finalize__"
+_HALT: Final[str] = "__halt__"
+
+
+class _GraphState(TypedDict):
+    """The LangGraph channel state: the incident, and whether the run has stopped."""
+
+    state: IncidentState
+    halt: bool
+
+
+@dataclass(slots=True)
+class _Run:
+    """Per-invocation mutable bookkeeping, passed to nodes via LangGraph's config."""
+
+    ctx: RunContext
+    decision: HumanDecision | None
+    step: int
+    state: IncidentState
+    executed: int = 0
+    written: list[Checkpoint] = field(default_factory=list)
+
+
+def _follow_cursor(gs: _GraphState) -> str:
+    """LangGraph conditional edge: go where the incident's cursor points, or stop."""
+    if gs["halt"]:
+        return _HALT
+    cursor = gs["state"].cursor
+    return _FINALIZE if cursor == END else cursor
 
 
 def _elapsed_ms(start: datetime, end: datetime) -> float:

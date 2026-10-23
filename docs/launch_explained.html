@@ -1,0 +1,319 @@
+<title>Launch Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow reading column; each screen moment is a step with "on screen" / "say this" side by side. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#14222e; --muted:#566675; --line:#d6dde4;
+  --accent:#0b6e8a; --accent-soft:#dff0f5; --say:#fff6dc; --say-line:#e5c766;
+  --ok:#1c7a4a; --warn:#a85a00; --bad:#b3261e;
+  --display:"Fraunces",Georgia,serif; --body:"Source Sans 3",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a22; --surface:#16252f; --fg:#e6edf2; --muted:#9fb0bc; --line:#2a3d4a;
+  --accent:#58c3de; --accent-soft:#16384a; --say:#2e2a14; --say-line:#8a7424;
+  --ok:#5fd19a; --warn:#f0a94c; --bad:#ff8a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a22; --surface:#16252f; --fg:#e6edf2; --muted:#9fb0bc; --line:#2a3d4a;
+  --accent:#58c3de; --accent-soft:#16384a; --say:#2e2a14; --say-line:#8a7424;
+  --ok:#5fd19a; --warn:#f0a94c; --bad:#ff8a80; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55;padding-inline:16px;padding-block:32px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px)}
+h2{font-size:clamp(22px,3.6vw,28px)}
+h3{font-size:19px}
+p{margin:0}
+.lede{color:var(--muted);font-size:18px;max-width:62ch}
+code,.mono{font-family:var(--mono);font-size:.88em;background:var(--accent-soft);padding:1px 6px;border-radius:4px}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:12px}
+
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.big{border-left:4px solid var(--accent)}
+.box ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.step-head{display:flex;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line)}
+.step-head .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--bg);display:grid;place-items:center;font-weight:700;font-size:15px}
+.cols{display:grid;grid-template-columns:1fr 1fr}
+.col{padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.say{background:var(--say);border-left:1px solid var(--say-line)}
+@media(max-width:640px){.cols{grid-template-columns:1fr}.say{border-left:0;border-top:1px solid var(--say-line)}}
+
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{background:var(--accent-soft);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:600;font-size:15px}
+.arrow{color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ok{color:var(--ok);font-weight:700}.warn{color:var(--warn);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.qa{display:flex;flex-direction:column;gap:12px}
+.qa div{border-top:1px solid var(--line);padding-top:10px}
+.qa b{display:block}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="label">Presenter notes · Signed in as Maya (analyst) · Demo workspace</span>
+  <h1>What happens when you click Launch</h1>
+  <p class="lede">Each step below has two sides. The left side is what people will see on screen. The right side is what you can say out loud, in plain words, to an audience that has never heard of any of this.</p>
+</header>
+
+<section class="box big">
+  <h2>The one sentence to start with</h2>
+  <p>"Launch starts a pretend cyber attack inside our system. It feeds the attack in as alerts, and then we watch our team of AI agents investigate it and ask a human, Maya, before doing anything risky."</p>
+  <p class="label">Keep these three ideas and you can explain anything else</p>
+  <ul>
+    <li><b>Alert</b> = a warning that something looks odd on the network.</li>
+    <li><b>Agent</b> = a small AI worker with one job (sort, investigate, or propose a fix).</li>
+    <li><b>Approval gate</b> = the AI is never allowed to take a risky action alone. A human clicks Approve or Reject.</li>
+  </ul>
+</section>
+
+<section class="box">
+  <h2>Before the click: the Scenarios page</h2>
+  <ul>
+    <li>Three cards are shown. Each is a short story: <b>Phishing to lateral movement</b>, <b>Vendor-dependency CVE</b>, and <b>Malicious open-source package</b>.</li>
+    <li>Each card has a title, a summary, the list of agents it uses, and a blue <b>Launch scenario</b> button.</li>
+    <li>The badge on the card says <span class="tag">not started</span>.</li>
+    <li>Only an analyst like Maya sees the button. A viewer sees a "read-only" banner and no button. Say this: "People who should only look cannot press the dangerous buttons."</li>
+  </ul>
+</section>
+
+<section class="flow box">
+  <span class="label">The whole journey in one line</span>
+  <div class="flow">
+    <span class="chip">Click Launch</span><span class="arrow">→</span>
+    <span class="chip">Alerts arrive</span><span class="arrow">→</span>
+    <span class="chip">Triage</span><span class="arrow">→</span>
+    <span class="chip">Investigate</span><span class="arrow">→</span>
+    <span class="chip">Propose a fix</span><span class="arrow">→</span>
+    <span class="chip">Human approves</span><span class="arrow">→</span>
+    <span class="chip">Action runs</span><span class="arrow">→</span>
+    <span class="chip">Audit log</span>
+  </div>
+</section>
+
+<h2>Main demo: "Phishing to lateral movement"</h2>
+<p class="lede">This is the best one to present. It is a story anyone understands: one employee clicks a bad link and the attacker starts moving through the company.</p>
+
+<div class="step">
+  <div class="step-head"><span class="n">1</span><h3>You click "Launch scenario"</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen</span>
+      <ul>
+        <li>The button greys out straight away so it cannot be clicked twice.</li>
+        <li>The page waits for a moment while the system works.</li>
+        <li>The card badge changes from <span class="tag">not started</span> to <span class="tag">N waiting for you</span>.</li>
+        <li>The card now says "Launched … ago by Maya" and lists three incidents underneath.</li>
+      </ul>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"I pressed one button. Behind it, the system just created three alerts, like three alarm bells."</li>
+        <li>"Each alert is one small clue of the same attack."</li>
+        <li>"The card now records who launched it and when. Nothing here is anonymous."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">2</span><h3>The three alerts (the story)</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen: the three incident lines</span>
+      <div class="tw"><table>
+        <tr><th>Alert</th><th>Means</th></tr>
+        <tr><td>Second-stage fetch from <code>ws-fin-07</code></td><td>A finance laptop downloads the attacker's tool.</td></tr>
+        <tr><td>Internal discovery sweep against <code>fs-01</code></td><td>That laptop starts scanning the file server.</td></tr>
+        <tr><td>Credential burst against <code>fs-01</code> from the IT jump host</td><td>Someone tries many passwords using stolen admin access.</td></tr>
+      </table></div>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"Story: a finance person clicked a fake email link. Their laptop is now working for the attacker."</li>
+        <li>"First it downloads tools. Then it looks around the network. Then it tries stolen passwords on the file server."</li>
+        <li>"Normal tools would show these as three unrelated alarms. Our system connects them."</li>
+        <li>Be honest: "These alerts are scripted for the demo. The data is simulated, the AI logic running on it is real."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">3</span><h3>Agent 1, Triage: "Is this worth a human's time?"</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen (open an incident → Triage box)</span>
+      <ul>
+        <li><b>Decision</b>: escalate or dismiss.</li>
+        <li><b>Severity</b> and <b>Confidence</b> numbers.</li>
+        <li><b>Anomaly score</b>: how strange this traffic is.</li>
+        <li><b>Technique</b>: an ID from MITRE ATT&amp;CK, a public catalogue of known attack methods.</li>
+        <li>A written reason underneath.</li>
+      </ul>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"Think of Triage as the hospital front desk nurse. Most alerts are harmless and get dismissed. These three were escalated."</li>
+        <li>"It also tells you why, and how sure it is. No black box."</li>
+        <li>"This is how we cut alert noise so people only see what matters."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">4</span><h3>Agent 2, Investigation: "What exactly happened?"</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen (Investigation box)</span>
+      <ul>
+        <li>A short written summary of the attack.</li>
+        <li>A numbered list of claims. Each claim has small reference codes next to it.</li>
+        <li>An <b>Evidence</b> section: the raw log lines those codes point to.</li>
+        <li>The text "every claim cited".</li>
+      </ul>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"Investigation is the detective. It writes a short report."</li>
+        <li>"Every sentence points to the actual log line that proves it. If it cannot cite evidence, it cannot claim it."</li>
+        <li>"That is how we stop the AI from making things up."</li>
+        <li>Also point at "Injection scan" on the alert: "We check that attackers cannot talk to our AI through the data. Any hidden text is shown as plain, harmless text."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">5</span><h3>Agent 3, Containment: "What should we do about it?"</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen (Actions box and the Approval queue page)</span>
+      <ul>
+        <li>One proposed action per alert, such as <b>Isolate host → ws-fin-07</b> or <b>Block IP → 10.20.0.5</b>.</li>
+        <li>Each action is marked <span class="tag">gated</span>, meaning a human must approve it.</li>
+        <li>A status of "awaiting approval". The Approval queue page lists all of them with a <b>Review and decide</b> button.</li>
+      </ul>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"Containment is the planner. It proposes the fix but it cannot do it by itself."</li>
+        <li>"Isolating a laptop means cutting it off the network. Doing that by mistake could stop someone's work, so a human must agree first."</li>
+        <li>"The queue is Maya's to-do list of decisions."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">6</span><h3>The Human Approval Gate: Maya decides</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen (yellow-tinted decision box at the top of the incident)</span>
+      <ul>
+        <li>Title: <b>Human Approval Gate</b>.</li>
+        <li>The action, the reason, who proposed it, trust tier, whether it is destructive, and the attached evidence.</li>
+        <li>A note box, then green <b>Approve</b> and red <b>Reject</b> buttons, and "Recorded as maya…".</li>
+      </ul>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"Here is where the AI stops and waits. Everything Maya needs is on one screen: what, why, and the proof."</li>
+        <li>"Her note and her name are saved permanently. If anyone asks later who approved this, the answer is here."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">7</span><h3>The three decisions in this story</h3></div>
+  <div class="col">
+    <div class="tw"><table>
+      <tr><th>Do this</th><th>What you will see</th><th>Say this</th></tr>
+      <tr>
+        <td><b>Approve</b> isolating <code>ws-fin-07</code></td>
+        <td class="ok">Action succeeds, run shows completed.</td>
+        <td>"This cuts off the infected laptop. The attacker loses their foothold."</td>
+      </tr>
+      <tr>
+        <td><b>Reject</b> blocking <code>10.20.4.17</code> (redundant)</td>
+        <td class="warn">Run ends with decision "denied", nothing executed.</td>
+        <td>"The laptop is already cut off, so this is unnecessary. A human can say no. The AI does not insist."</td>
+      </tr>
+      <tr>
+        <td><b>Approve</b> blocking <code>10.20.0.5</code> (the IT jump host)</td>
+        <td class="bad">Action FAILS, with a red banner giving the refusal reason.</td>
+        <td>"Even with approval, the system refuses, because this machine is protected infrastructure. That is a safety rule the AI and the human cannot override. We show it on purpose."</td>
+      </tr>
+    </table></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-head"><span class="n">8</span><h3>Audit log: the proof trail</h3></div>
+  <div class="cols">
+    <div class="col">
+      <span class="label">On screen (Audit log page, and Timeline at the bottom of an incident)</span>
+      <ul>
+        <li>A time-ordered list of everything that happened, each entry naming the actor.</li>
+        <li>On the incident: <b>Timing and integrity</b> shows detect time, contain time, time spent waiting on a human, and a green badge <span class="tag">chain verified</span>.</li>
+      </ul>
+    </div>
+    <div class="col say">
+      <span class="label">Say this</span>
+      <ul>
+        <li>"Every step is written into a tamper-evident log. Each entry is linked to the one before, like a chain. Change one and the chain visibly breaks."</li>
+        <li>"Green means nobody altered the history. That is what auditors and regulators ask for."</li>
+        <li>"The timings show how quickly we detected and contained the attack."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<section class="box">
+  <h2>The other two Launch buttons (short version)</h2>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>What Launch does</th><th>Say this</th></tr>
+    <tr>
+      <td><b>Vendor-dependency CVE</b></td>
+      <td>Publishes a security advisory about four flaws in an old software package. The Supply-Chain Agent works out which companies are exposed, even through their suppliers' suppliers. The Code-Scan Agent scans a sample code project and drafts a fix.</td>
+      <td>"A flaw hides four levels down in software our vendors use. The map draws the exact path to us. Approving opens a tracking ticket, and the code fix is only a draft. Nothing is ever merged automatically."</td>
+    </tr>
+    <tr>
+      <td><b>Malicious open-source package</b></td>
+      <td>A popular package is taken over and steals secrets from a build server. The alert carries a hidden note asking AI scanners to ignore it.</td>
+      <td>"Attackers now write messages to AI tools, telling them to look away. Our system spots this, flags it, and forces an escalation. The note is displayed as harmless text."</td>
+    </tr>
+  </table></div>
+</section>
+
+<section class="box">
+  <h2>Be honest about these, they will come up</h2>
+  <div class="qa">
+    <div><b>"Is this a real attack?"</b>No. Launch replays scripted stories. The alerts are simulated so the demo is repeatable.</div>
+    <div><b>"Did it really isolate a computer?"</b>No. Actions run against a simulated connector. The flow, rules, approvals and refusals are real, but nothing in a real network is touched.</div>
+    <div><b>"Can the AI act alone?"</b>Not on anything risky. Every risky action waits at the approval gate.</div>
+    <div><b>"Why can I only launch each one once?"</b>Each story is a one-time run, so the record stays clean. After launching, the button shows "Launched".</div>
+    <div><b>"What if the AI is wrong?"</b>Every claim shows its evidence and confidence, and a human decides. Mistakes can be caught and rejected.</div>
+  </div>
+</section>
+
+<section class="box big">
+  <h2>Closing line</h2>
+  <p>"One click started a full attack story. AI agents sorted it, investigated it with proof, and proposed fixes. A human made the final call, the system refused one unsafe action on its own, and every step was recorded so it can be checked later."</p>
+</section>
+</div>

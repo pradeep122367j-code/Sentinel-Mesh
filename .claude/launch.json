@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-u", "-c", "import sys; sys.path.insert(0, 'src'); from sentinel.dashboard.__main__ import main; sys.exit(main(['--port', '8765', '--tenants', 'acme,globex']))"],
+      "port": 8765
+    }
+  ]
+}

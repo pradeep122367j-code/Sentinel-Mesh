@@ -1,0 +1,4179 @@
+{
+ "launch": {
+  "scenario": "phishing-lateral",
+  "incidents": [
+   "7987e00e-24b7-5821-b85a-8854c219faf6",
+   "adea062c-38b4-5fdc-ae78-3196075840f0",
+   "f5b10e9d-25b9-55fa-ad6f-90852d2aac13"
+  ]
+ },
+ "scenarios": [
+  {
+   "name": "phishing-lateral",
+   "title": "Phishing to lateral movement",
+   "summary": "A finance user follows a credential-phishing link. Network telemetry cannot see the click; the mesh first sees ws-fin-07 pull a second stage, then sweep the file server, then a burst of logins against it from the IT jump host using harvested admin credentials.",
+   "walkthrough": [
+    "Launch. Three flows arrive; triage escalates each, investigation cites the raw log lines and ATT&CK, containment proposes an action for each.",
+    "Approve isolating ws-fin-07 (10.20.4.17) \u2014 the foothold.",
+    "Decide the block of 10.20.4.17 raised by the discovery sweep; it is redundant once the host is isolated, so rejecting it is reasonable.",
+    "Approve blocking 10.20.0.5. The router refuses it: the jump host is protected infrastructure. The run completes with a FAILED action and the refusal reason \u2014 the guardrail firing where you can see it.",
+    "Open the audit timeline: every approval names you, and the chain verifies."
+   ],
+   "agents": [
+    "triage",
+    "investigation",
+    "containment"
+   ],
+   "launched": true,
+   "launched_at": "2026-09-29T09:00:08.141000+00:00",
+   "launched_by": "maya@acme.example",
+   "complete": false,
+   "total": 3,
+   "waiting": 3,
+   "running": 0,
+   "finished": 0,
+   "failed_runs": 0,
+   "failed_actions": 0,
+   "decisions": 0,
+   "threads": [
+    {
+     "incident_id": "7987e00e-24b7-5821-b85a-8854c219faf6",
+     "caption": "Second-stage fetch from ws-fin-07 after the phishing click",
+     "kind": "incident",
+     "status": "awaiting_approval"
+    },
+    {
+     "incident_id": "adea062c-38b4-5fdc-ae78-3196075840f0",
+     "caption": "Internal discovery sweep from ws-fin-07 against fs-01",
+     "kind": "incident",
+     "status": "awaiting_approval"
+    },
+    {
+     "incident_id": "f5b10e9d-25b9-55fa-ad6f-90852d2aac13",
+     "caption": "Credential burst against fs-01 from the IT jump host",
+     "kind": "incident",
+     "status": "awaiting_approval"
+    }
+   ]
+  },
+  {
+   "name": "vendor-cve",
+   "title": "Vendor-dependency CVE",
+   "summary": "Four CVEs are disclosed together in an archived package that sits four hops below several organisations, inside their vendors' dependency trees \u2014 the exposure no vendor questionnaire reaches. The same morning, the Code-Scan Agent reviews acme/billing and maps its findings to CVEs.",
+   "walkthrough": [
+    "Launch. The advisory lands on the graph; the GNN re-scores it and the Supply-Chain Agent reviews everything the package reaches.",
+    "Open the supply-chain map: the fourth-order path from the package to each organisation is drawn, and every flag cites the path that drove it.",
+    "Approve the remediation: a tracking issue is opened in GitHub (the dependency change itself is not invented \u2014 the graph is synthetic).",
+    "Open the code-scan view: read the draft PR body and diff, then approve. The PR is opened as a draft and never merged."
+   ],
+   "agents": [
+    "supply-chain",
+    "code-scan"
+   ],
+   "launched": false,
+   "launched_at": null,
+   "launched_by": null,
+   "complete": false,
+   "total": 0,
+   "waiting": 0,
+   "running": 0,
+   "finished": 0,
+   "failed_runs": 0,
+   "failed_actions": 0,
+   "decisions": 0,
+   "threads": []
+  },
+  {
+   "name": "malicious-package",
+   "title": "Malicious open-source package",
+   "summary": "A widely used, long-abandoned package changes hands and ships a release that steals CI secrets. ci-runner-03 installed it: its install script posts the build environment to an external host, and the request carries a note addressed to AI security scanners asking them not to escalate.",
+   "walkthrough": [
+    "Launch. The MAL advisory re-scores the graph; the exfiltration flow from ci-runner-03 enters the incident graph.",
+    "Open the incident: the payload's note to 'AI scanners' is flagged as a prompt injection and forced to escalate \u2014 it is shown as inert text.",
+    "Approve isolating ci-runner-03 (10.20.8.30).",
+    "Approve the supply-chain remediation for the package; review its reach on the map."
+   ],
+   "agents": [
+    "triage",
+    "investigation",
+    "containment",
+    "supply-chain"
+   ],
+   "launched": false,
+   "launched_at": null,
+   "launched_by": null,
+   "complete": false,
+   "total": 0,
+   "waiting": 0,
+   "running": 0,
+   "finished": 0,
+   "failed_runs": 0,
+   "failed_actions": 0,
+   "decisions": 0,
+   "threads": []
+  }
+ ],
+ "queue0": [
+  {
+   "incident_id": "f5b10e9d-25b9-55fa-ad6f-90852d2aac13",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Credential burst against fs-01 from the IT jump host",
+   "advisory_id": null,
+   "status": "awaiting_approval",
+   "severity": "high",
+   "decision": "escalate",
+   "confidence": 0.9999847280827058,
+   "technique_id": "T1110",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.1.10",
+    "hostname": "fs-01",
+    "role": "file server",
+    "protected": false
+   },
+   "src_ip": "10.20.0.5",
+   "dst_ip": "10.20.1.10",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:08.250000+00:00",
+   "pending_action": {
+    "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+    "action_type": "block_ip",
+    "destructive": true,
+    "target": "10.20.0.5",
+    "target_asset": {
+     "address": "10.20.0.5",
+     "hostname": "jump-01",
+     "role": "IT jump host",
+     "protected": true
+    },
+    "rationale": "Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+    "proposed_by": "containment_agent",
+    "risk_tier": "recommend",
+    "requires_human_approval": true,
+    "status": "pending",
+    "approved_by": null,
+    "decided_at": null,
+    "executed_at": null,
+    "failure_reason": null,
+    "created_at": "2026-09-29T09:00:08.250000+00:00",
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#description.0",
+      "excerpt": "Repeated authentication attempts to discover valid credentials, whether by guessing many passwords against one account, one common password against many accounts, or replaying credential pairs leaked elsewhere.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#detection.1",
+      "excerpt": "Count failures per source and per account over a sliding window, and count distinct accounts attempted per source. The spraying variant is invisible to per-account lockout thresholds, so distinct-account fan-out is the signal that catches it.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.003#description.0",
+      "excerpt": "Trying a small number of likely passwords across a large number of accounts, staying below per-account lockout thresholds while still succeeding somewhere in a large directory.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.004#description.0",
+      "excerpt": "Replay of username and password pairs harvested from unrelated breaches against the victim's services, exploiting password reuse rather than any weakness in the target.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+      "excerpt": "src_ip=10.20.0.5",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+      "excerpt": "dst_port=21",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature",
+      "excerpt": "signature=cic-ids2017:brute_force",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9982756281647509 confidence=1.000 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ]
+   },
+   "actions": [
+    {
+     "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "action_type": "block_ip",
+     "target": "10.20.0.5",
+     "status": "pending"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.094,
+   "contain_seconds": null,
+   "error": null
+  },
+  {
+   "incident_id": "adea062c-38b4-5fdc-ae78-3196075840f0",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Internal discovery sweep from ws-fin-07 against fs-01",
+   "advisory_id": null,
+   "status": "awaiting_approval",
+   "severity": "medium",
+   "decision": "escalate",
+   "confidence": 0.9894933504348918,
+   "technique_id": "T1046",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.1.10",
+    "hostname": "fs-01",
+    "role": "file server",
+    "protected": false
+   },
+   "src_ip": "10.20.4.17",
+   "dst_ip": "10.20.1.10",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:08.219000+00:00",
+   "pending_action": {
+    "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+    "action_type": "block_ip",
+    "destructive": true,
+    "target": "10.20.4.17",
+    "target_asset": {
+     "address": "10.20.4.17",
+     "hostname": "ws-fin-07",
+     "role": "finance workstation",
+     "protected": false
+    },
+    "rationale": "Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+    "proposed_by": "containment_agent",
+    "risk_tier": "recommend",
+    "requires_human_approval": true,
+    "status": "pending",
+    "approved_by": null,
+    "decided_at": null,
+    "executed_at": null,
+    "failure_reason": null,
+    "created_at": "2026-09-29T09:00:08.219000+00:00",
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#description.0",
+      "excerpt": "Scanning inside the network to find reachable services and versions, which is how an adversary converts a single foothold into a map of exploitable targets.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#detection.1",
+      "excerpt": "Internal source addresses contacting many destination ports or many destination hosts with a high proportion of failed handshakes. East-west flow records are the right telemetry; perimeter logs never see this.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-SCAN-TRIAGE#description.0",
+      "excerpt": "Discovery activity is individually benign and collectively decisive. A workstation enumerating hosts, shares, accounts and privileged groups within a few minutes is either a security tool, an administrator with a script, or an intruder orienting after initial access, and the three are easy to separate by asking who owns the source.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+      "excerpt": "dst_port=1",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature",
+      "excerpt": "signature=cic-ids2017:recon",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=1.0 confidence=0.989 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ]
+   },
+   "actions": [
+    {
+     "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "action_type": "block_ip",
+     "target": "10.20.4.17",
+     "status": "pending"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.062,
+   "contain_seconds": null,
+   "error": null
+  },
+  {
+   "incident_id": "7987e00e-24b7-5821-b85a-8854c219faf6",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Second-stage fetch from ws-fin-07 after the phishing click",
+   "advisory_id": null,
+   "status": "awaiting_approval",
+   "severity": "critical",
+   "decision": "escalate",
+   "confidence": 0.9740052000640058,
+   "technique_id": "T1105",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.4.17",
+    "hostname": "ws-fin-07",
+    "role": "finance workstation",
+    "protected": false
+   },
+   "src_ip": "10.20.4.17",
+   "dst_ip": "203.0.113.47",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:08.188000+00:00",
+   "pending_action": {
+    "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+    "action_type": "isolate_host",
+    "destructive": true,
+    "target": "10.20.4.17",
+    "target_asset": {
+     "address": "10.20.4.17",
+     "hostname": "ws-fin-07",
+     "role": "finance workstation",
+     "protected": false
+    },
+    "rationale": "Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+    "proposed_by": "containment_agent",
+    "risk_tier": "recommend",
+    "requires_human_approval": true,
+    "status": "pending",
+    "approved_by": null,
+    "decided_at": null,
+    "executed_at": null,
+    "failure_reason": null,
+    "created_at": "2026-09-29T09:00:08.188000+00:00",
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#description.0",
+      "excerpt": "Transfer of tooling into the environment from outside after initial access, commonly using built-in download utilities so nothing unusual needs to be present first.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#detection.1",
+      "excerpt": "Built-in transfer utilities invoked with external URLs by non-administrative parents, and executable content written immediately after an outbound connection to a low-reputation host.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-C2-BEACON#description.0",
+      "excerpt": "Command and control hides in permitted protocols, so the discriminator is the pattern rather than the destination. Interval regularity, small and uniform request sizes and a single internal client per destination are the durable signals; domain reputation is a weak one because adversaries increasingly use well-reputed hosting and legitimate services.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+      "excerpt": "dst_ip=203.0.113.47",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+      "excerpt": "dst_port=22",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+      "excerpt": "asset_id=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature",
+      "excerpt": "signature=cic-ids2017:infiltration",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9964084967678378 confidence=0.974 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ]
+   },
+   "actions": [
+    {
+     "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "action_type": "isolate_host",
+     "target": "10.20.4.17",
+     "status": "pending"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.031,
+   "contain_seconds": null,
+   "error": null
+  }
+ ],
+ "details_before": {
+  "7987e00e-24b7-5821-b85a-8854c219faf6": {
+   "incident_id": "7987e00e-24b7-5821-b85a-8854c219faf6",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Second-stage fetch from ws-fin-07 after the phishing click",
+   "advisory_id": null,
+   "status": "awaiting_approval",
+   "severity": "critical",
+   "decision": "escalate",
+   "confidence": 0.9740052000640058,
+   "technique_id": "T1105",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.4.17",
+    "hostname": "ws-fin-07",
+    "role": "finance workstation",
+    "protected": false
+   },
+   "src_ip": "10.20.4.17",
+   "dst_ip": "203.0.113.47",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:08.188000+00:00",
+   "pending_action": {
+    "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+    "action_type": "isolate_host",
+    "destructive": true,
+    "target": "10.20.4.17",
+    "target_asset": {
+     "address": "10.20.4.17",
+     "hostname": "ws-fin-07",
+     "role": "finance workstation",
+     "protected": false
+    },
+    "rationale": "Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+    "proposed_by": "containment_agent",
+    "risk_tier": "recommend",
+    "requires_human_approval": true,
+    "status": "pending",
+    "approved_by": null,
+    "decided_at": null,
+    "executed_at": null,
+    "failure_reason": null,
+    "created_at": "2026-09-29T09:00:08.188000+00:00",
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#description.0",
+      "excerpt": "Transfer of tooling into the environment from outside after initial access, commonly using built-in download utilities so nothing unusual needs to be present first.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#detection.1",
+      "excerpt": "Built-in transfer utilities invoked with external URLs by non-administrative parents, and executable content written immediately after an outbound connection to a low-reputation host.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-C2-BEACON#description.0",
+      "excerpt": "Command and control hides in permitted protocols, so the discriminator is the pattern rather than the destination. Interval regularity, small and uniform request sizes and a single internal client per destination are the durable signals; domain reputation is a weak one because adversaries increasingly use well-reputed hosting and legitimate services.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+      "excerpt": "dst_ip=203.0.113.47",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+      "excerpt": "dst_port=22",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+      "excerpt": "asset_id=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature",
+      "excerpt": "signature=cic-ids2017:infiltration",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9964084967678378 confidence=0.974 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ]
+   },
+   "actions": [
+    {
+     "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "action_type": "isolate_host",
+     "target": "10.20.4.17",
+     "status": "pending"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.031,
+   "contain_seconds": null,
+   "error": null,
+   "alert": {
+    "alert_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+    "source": "network_ids",
+    "timestamp": "2026-09-29T08:51:08.141000+00:00",
+    "ingested_at": "2026-09-29T09:00:08.141000+00:00",
+    "asset": {
+     "address": "10.20.4.17",
+     "hostname": "ws-fin-07",
+     "role": "finance workstation",
+     "protected": false
+    },
+    "signature": "cic-ids2017:infiltration",
+    "src_ip": "10.20.4.17",
+    "dst_ip": "203.0.113.47",
+    "src_port": 49444,
+    "dst_port": 22,
+    "protocol": "tcp",
+    "dataset": "cic-ids2017",
+    "raw_payload": "{\" Destination IP\":\"203.0.113.47\",\" Destination Port\":22,\" Flow Duration\":7534955,\" Flow Packets/s\":97.54537033559345,\" Label\":\"Infiltration\",\" Protocol\":6,\" Source IP\":\"10.20.4.17\",\" Source Port\":49444,\" Timestamp\":\"29/09/2026 08:51:08\",\" Total Backward Packets\":2,\" Total Fwd Packets\":733,\" Total Length of Bwd Packets\":71,\"Flow Bytes/s\":84982.32292510645,\"Flow ID\":\"synthetic-8062\",\"Total Length of Fwd Packets\":640267}",
+    "untrusted": true,
+    "injection": {
+     "verdict": "clean",
+     "summary": "clean (score=0.00)",
+     "sha256": "74085cf3bfd8782c28d9183945c477883555a172904546148a03d55b835c7329"
+    },
+    "features": {
+     "bytes_per_second": 84982.32570732008,
+     "bytes_ratio_src_to_total": 0.9998891210579413,
+     "dst_bytes": 71.0,
+     "dst_distinct_src_ips_window": 0.0,
+     "dst_flow_count_window": 0.0,
+     "dst_mean_packet_bytes": 35.5,
+     "dst_packets": 2.0,
+     "dst_port": 22,
+     "duration_seconds": 7.534955,
+     "packets_per_second": 97.54537352910535,
+     "protocol_number": 6,
+     "src_bytes": 640267.0,
+     "src_bytes_sum_window": 2148267.0,
+     "src_distinct_dst_ips_window": 3.0,
+     "src_distinct_dst_ports_window": 1.0,
+     "src_flow_count_window": 3.0,
+     "src_interarrival_cv_window": 0.3181818181818182,
+     "src_interarrival_mean_window": 22.0,
+     "src_mean_packet_bytes": 873.4884038199182,
+     "src_packets": 733.0,
+     "total_bytes": 640338.0,
+     "total_packets": 735.0
+    }
+   },
+   "triage": {
+    "decision": "escalate",
+    "severity": "critical",
+    "confidence": 0.9740052000640058,
+    "technique_id": "T1105",
+    "rationale": "Anomaly ensemble scored 0.996 (escalate>=0.995, monitor>=0.985). Classifier: infiltration at p=0.962. Decision: escalate.",
+    "supporting_fields": [
+     "src_bytes",
+     "bytes_ratio_src_to_total",
+     "src_bytes_sum_window"
+    ],
+    "anomaly_score": 0.9964084967678378,
+    "injection_verdict": "clean",
+    "model_version": "triage-1",
+    "latency_ms": 15.999999995983671,
+    "decided_at": "2026-09-29T09:00:08.156000+00:00"
+   },
+   "report": {
+    "report_id": "9f5ed254-4164-5403-895b-800b3b092ac4",
+    "agent": "investigation_agent",
+    "summary": "CRITICAL \u2014 escalate on asset 10.20.4.17 mapped to T1105. Anomaly ensemble scored 0.996 (escalate>=0.995, monitor>=0.985). Classifier: infiltration at p=0.962. Decision: escalate.",
+    "severity": "critical",
+    "confidence": 0.9740052000640058,
+    "techniques": [
+     "T1105"
+    ],
+    "recommended_actions": [
+     "isolate_host",
+     "quarantine_file"
+    ],
+    "claims": [
+     {
+      "statement": "The detection ensemble scored this flow 0.996 and triage decided escalate at confidence 0.97.",
+      "refs": [
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "The activity involves asset 10.20.4.17 and is recorded on the network_ids feed.",
+      "refs": [
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature"
+      ]
+     },
+     {
+      "statement": "The observed pattern maps to MITRE ATT&CK T1105, supported by src_bytes, bytes_ratio_src_to_total, src_bytes_sum_window.",
+      "refs": [
+       "kb://technique/T1105#description.0",
+       "kb://technique/T1105#detection.1",
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "Response guidance for this technique is available in the indexed playbooks and advisories.",
+      "refs": [
+       "kb://playbook/PB-C2-BEACON#description.0"
+      ]
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#description.0",
+      "excerpt": "Transfer of tooling into the environment from outside after initial access, commonly using built-in download utilities so nothing unusual needs to be present first.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#detection.1",
+      "excerpt": "Built-in transfer utilities invoked with external URLs by non-administrative parents, and executable content written immediately after an outbound connection to a low-reputation host.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-C2-BEACON#description.0",
+      "excerpt": "Command and control hides in permitted protocols, so the discriminator is the pattern rather than the destination. Interval regularity, small and uniform request sizes and a single internal client per destination are the durable signals; domain reputation is a weak one because adversaries increasingly use well-reputed hosting and legitimate services.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+      "excerpt": "dst_ip=203.0.113.47",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+      "excerpt": "dst_port=22",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+      "excerpt": "asset_id=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature",
+      "excerpt": "signature=cic-ids2017:infiltration",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9964084967678378 confidence=0.974 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ],
+    "grounded": true,
+    "model_version": "investigation-1",
+    "created_at": "2026-09-29T09:00:08.172000+00:00"
+   },
+   "actions_detail": [
+    {
+     "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "action_type": "isolate_host",
+     "destructive": true,
+     "target": "10.20.4.17",
+     "target_asset": {
+      "address": "10.20.4.17",
+      "hostname": "ws-fin-07",
+      "role": "finance workstation",
+      "protected": false
+     },
+     "rationale": "Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+     "proposed_by": "containment_agent",
+     "risk_tier": "recommend",
+     "requires_human_approval": true,
+     "status": "pending",
+     "approved_by": null,
+     "decided_at": null,
+     "executed_at": null,
+     "failure_reason": null,
+     "created_at": "2026-09-29T09:00:08.188000+00:00",
+     "evidence": [
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1105#description.0",
+       "excerpt": "Transfer of tooling into the environment from outside after initial access, commonly using built-in download utilities so nothing unusual needs to be present first.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1105#detection.1",
+       "excerpt": "Built-in transfer utilities invoked with external URLs by non-administrative parents, and executable content written immediately after an outbound connection to a low-reputation host.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "kb_chunk",
+       "ref": "kb://playbook/PB-C2-BEACON#description.0",
+       "excerpt": "Command and control hides in permitted protocols, so the discriminator is the pattern rather than the destination. Interval regularity, small and uniform request sizes and a single internal client per destination are the durable signals; domain reputation is a weak one because adversaries increasingly use well-reputed hosting and legitimate services.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+       "excerpt": "src_ip=10.20.4.17",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+       "excerpt": "dst_ip=203.0.113.47",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+       "excerpt": "dst_port=22",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+       "excerpt": "protocol=tcp",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+       "excerpt": "asset_id=10.20.4.17",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature",
+       "excerpt": "signature=cic-ids2017:infiltration",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "model_output",
+       "ref": "model://triage-1#anomaly_score",
+       "excerpt": "anomaly_score=0.9964084967678378 confidence=0.974 decision=escalate",
+       "relevance": 1.0,
+       "untrusted": true
+      }
+     ]
+    }
+   ],
+   "interrupt": {
+    "node": "approve",
+    "reason": "isolate_host on 10.20.4.17 requires approval (trust tier recommend): Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+    "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+    "requested_at": "2026-09-29T09:00:08.188000+00:00"
+   },
+   "history": [
+    {
+     "node": "triage",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.156000+00:00",
+     "ended_at": "2026-09-29T09:00:08.172000+00:00",
+     "duration_ms": 16.0,
+     "detail": ""
+    },
+    {
+     "node": "investigate",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.172000+00:00",
+     "ended_at": "2026-09-29T09:00:08.172000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "contain",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.188000+00:00",
+     "ended_at": "2026-09-29T09:00:08.188000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    }
+   ],
+   "trust_tier": "recommend",
+   "checkpoints": {
+    "count": 4,
+    "verified": true,
+    "error": null
+   },
+   "timings": {
+    "detect_seconds": 0.031,
+    "pipeline_detect_seconds": 0.031,
+    "feed_lag_seconds": 0.0,
+    "contain_seconds": null,
+    "approval_wait_seconds": 0.0
+   },
+   "timeline": [
+    {
+     "seq": 1,
+     "recorded_at": "2026-09-29T09:00:08.172000Z",
+     "event_type": "triage_decided",
+     "actor": "triage_agent",
+     "subject_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+     "payload": {
+      "anomaly_score": 0.9964084967678378,
+      "confidence": 0.9740052000640058,
+      "decision": "escalate",
+      "model_version": "triage-1",
+      "severity": "critical",
+      "technique_id": "T1105"
+     },
+     "row_hash": "13329fb24022b87972b8f3c0ca24e6f0c4dc325c3437c980df975e398373178c",
+     "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "seq": 2,
+     "recorded_at": "2026-09-29T09:00:08.172000Z",
+     "event_type": "investigation_completed",
+     "actor": "investigation_agent",
+     "subject_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+     "payload": {
+      "grounded": true,
+      "n_claims": 4,
+      "n_evidence": 10,
+      "report_id": "9f5ed254-4164-5403-895b-800b3b092ac4",
+      "techniques": [
+       "T1105"
+      ]
+     },
+     "row_hash": "0e7087ccd83a3ffa577766fe6d1d9146ccc3a61597697ab3aecc1d96ee33245d",
+     "prev_hash": "13329fb24022b87972b8f3c0ca24e6f0c4dc325c3437c980df975e398373178c"
+    },
+    {
+     "seq": 3,
+     "recorded_at": "2026-09-29T09:00:08.188000Z",
+     "event_type": "action_proposed",
+     "actor": "containment_agent",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "alert_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+      "exploratory": false,
+      "policy": {
+       "choice": "escalate",
+       "confidence": 0.310247,
+       "expected": {
+        "dismiss": -0.361101,
+        "escalate": 0.20286,
+        "monitor": -0.117959
+       },
+       "exploratory": false,
+       "fitted": true,
+       "floored": false,
+       "response": "escalate"
+      },
+      "requires_human_approval": true,
+      "response": "escalate",
+      "risk_tier": "recommend",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "1c76b5ba49cc88c843754b910078aef8944f4bfba712e3a82a3694aa943575cb",
+     "prev_hash": "0e7087ccd83a3ffa577766fe6d1d9146ccc3a61597697ab3aecc1d96ee33245d"
+    },
+    {
+     "seq": 4,
+     "recorded_at": "2026-09-29T09:00:08.188000Z",
+     "event_type": "approval_requested",
+     "actor": "containment_agent",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "rationale": "Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "9bb29f15665b6b6686736b93287a88b53ad271b448d4b6abf8337e02ea7fe106",
+     "prev_hash": "1c76b5ba49cc88c843754b910078aef8944f4bfba712e3a82a3694aa943575cb"
+    }
+   ],
+   "wire": {
+    "calls": [],
+    "refusals": [],
+    "executions": []
+   },
+   "policy": {
+    "choice": "escalate",
+    "confidence": 0.310247,
+    "expected": {
+     "dismiss": -0.361101,
+     "escalate": 0.20286,
+     "monitor": -0.117959
+    },
+    "exploratory": false,
+    "fitted": true,
+    "floored": false,
+    "response": "escalate",
+    "seq": 3
+   },
+   "stalled": false
+  },
+  "adea062c-38b4-5fdc-ae78-3196075840f0": {
+   "incident_id": "adea062c-38b4-5fdc-ae78-3196075840f0",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Internal discovery sweep from ws-fin-07 against fs-01",
+   "advisory_id": null,
+   "status": "awaiting_approval",
+   "severity": "medium",
+   "decision": "escalate",
+   "confidence": 0.9894933504348918,
+   "technique_id": "T1046",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.1.10",
+    "hostname": "fs-01",
+    "role": "file server",
+    "protected": false
+   },
+   "src_ip": "10.20.4.17",
+   "dst_ip": "10.20.1.10",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:08.219000+00:00",
+   "pending_action": {
+    "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+    "action_type": "block_ip",
+    "destructive": true,
+    "target": "10.20.4.17",
+    "target_asset": {
+     "address": "10.20.4.17",
+     "hostname": "ws-fin-07",
+     "role": "finance workstation",
+     "protected": false
+    },
+    "rationale": "Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+    "proposed_by": "containment_agent",
+    "risk_tier": "recommend",
+    "requires_human_approval": true,
+    "status": "pending",
+    "approved_by": null,
+    "decided_at": null,
+    "executed_at": null,
+    "failure_reason": null,
+    "created_at": "2026-09-29T09:00:08.219000+00:00",
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#description.0",
+      "excerpt": "Scanning inside the network to find reachable services and versions, which is how an adversary converts a single foothold into a map of exploitable targets.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#detection.1",
+      "excerpt": "Internal source addresses contacting many destination ports or many destination hosts with a high proportion of failed handshakes. East-west flow records are the right telemetry; perimeter logs never see this.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-SCAN-TRIAGE#description.0",
+      "excerpt": "Discovery activity is individually benign and collectively decisive. A workstation enumerating hosts, shares, accounts and privileged groups within a few minutes is either a security tool, an administrator with a script, or an intruder orienting after initial access, and the three are easy to separate by asking who owns the source.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+      "excerpt": "dst_port=1",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature",
+      "excerpt": "signature=cic-ids2017:recon",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=1.0 confidence=0.989 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ]
+   },
+   "actions": [
+    {
+     "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "action_type": "block_ip",
+     "target": "10.20.4.17",
+     "status": "pending"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.062,
+   "contain_seconds": null,
+   "error": null,
+   "alert": {
+    "alert_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+    "source": "network_ids",
+    "timestamp": "2026-09-29T08:54:48.141000+00:00",
+    "ingested_at": "2026-09-29T09:00:08.141000+00:00",
+    "asset": {
+     "address": "10.20.1.10",
+     "hostname": "fs-01",
+     "role": "file server",
+     "protected": false
+    },
+    "signature": "cic-ids2017:recon",
+    "src_ip": "10.20.4.17",
+    "dst_ip": "10.20.1.10",
+    "src_port": 51566,
+    "dst_port": 1,
+    "protocol": "tcp",
+    "dataset": "cic-ids2017",
+    "raw_payload": "{\" Destination IP\":\"10.20.1.10\",\" Destination Port\":1,\" Flow Duration\":1183,\" Flow Packets/s\":844.8602744991836,\" Label\":\"PortScan\",\" Protocol\":6,\" Source IP\":\"10.20.4.17\",\" Source Port\":51566,\" Timestamp\":\"29/09/2026 08:54:48\",\" Total Backward Packets\":0,\" Total Fwd Packets\":1,\" Total Length of Bwd Packets\":0,\"Flow Bytes/s\":27880.389058473058,\"Flow ID\":\"synthetic-5173\",\"Total Length of Fwd Packets\":33}",
+    "untrusted": true,
+    "injection": {
+     "verdict": "clean",
+     "summary": "clean (score=0.00)",
+     "sha256": "4554ea3aa1cd3a65bf1b60f928252b3f96ea547847e9619c6b089c6041cd8cfe"
+    },
+    "features": {
+     "bytes_per_second": 27895.181741335586,
+     "bytes_ratio_src_to_total": 1.0,
+     "dst_bytes": 0.0,
+     "dst_distinct_src_ips_window": 1.0,
+     "dst_flow_count_window": 6.0,
+     "dst_mean_packet_bytes": 0.0,
+     "dst_packets": 0.0,
+     "dst_port": 1,
+     "duration_seconds": 0.001183,
+     "packets_per_second": 845.30853761623,
+     "protocol_number": 6,
+     "src_bytes": 33.0,
+     "src_bytes_sum_window": 216.0,
+     "src_distinct_dst_ips_window": 1.0,
+     "src_distinct_dst_ports_window": 6.0,
+     "src_flow_count_window": 6.0,
+     "src_interarrival_cv_window": 2.0,
+     "src_interarrival_mean_window": 0.2,
+     "src_mean_packet_bytes": 33.0,
+     "src_packets": 1.0,
+     "total_bytes": 33.0,
+     "total_packets": 1.0
+    }
+   },
+   "triage": {
+    "decision": "escalate",
+    "severity": "medium",
+    "confidence": 0.9894933504348918,
+    "technique_id": "T1046",
+    "rationale": "Anomaly ensemble scored 1.000 (escalate>=0.995, monitor>=0.985). Classifier: recon at p=0.848. Decision: escalate.",
+    "supporting_fields": [
+     "src_distinct_dst_ports_window",
+     "src_flow_count_window",
+     "dst_port"
+    ],
+    "anomaly_score": 1.0,
+    "injection_verdict": "clean",
+    "model_version": "triage-1",
+    "latency_ms": 0.0,
+    "decided_at": "2026-09-29T09:00:08.203000+00:00"
+   },
+   "report": {
+    "report_id": "51fb82f4-119c-5ba1-ac37-c5cce090790f",
+    "agent": "investigation_agent",
+    "summary": "MEDIUM \u2014 escalate on asset 10.20.1.10 mapped to T1046. Anomaly ensemble scored 1.000 (escalate>=0.995, monitor>=0.985). Classifier: recon at p=0.848. Decision: escalate.",
+    "severity": "medium",
+    "confidence": 0.9894933504348918,
+    "techniques": [
+     "T1046"
+    ],
+    "recommended_actions": [
+     "block_ip"
+    ],
+    "claims": [
+     {
+      "statement": "The detection ensemble scored this flow 1.000 and triage decided escalate at confidence 0.99.",
+      "refs": [
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "The activity involves asset 10.20.1.10 and is recorded on the network_ids feed.",
+      "refs": [
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature"
+      ]
+     },
+     {
+      "statement": "The observed pattern maps to MITRE ATT&CK T1046, supported by src_distinct_dst_ports_window, src_flow_count_window, dst_port.",
+      "refs": [
+       "kb://technique/T1046#description.0",
+       "kb://technique/T1046#detection.1",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port"
+      ]
+     },
+     {
+      "statement": "Response guidance for this technique is available in the indexed playbooks and advisories.",
+      "refs": [
+       "kb://playbook/PB-SCAN-TRIAGE#description.0"
+      ]
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#description.0",
+      "excerpt": "Scanning inside the network to find reachable services and versions, which is how an adversary converts a single foothold into a map of exploitable targets.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#detection.1",
+      "excerpt": "Internal source addresses contacting many destination ports or many destination hosts with a high proportion of failed handshakes. East-west flow records are the right telemetry; perimeter logs never see this.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-SCAN-TRIAGE#description.0",
+      "excerpt": "Discovery activity is individually benign and collectively decisive. A workstation enumerating hosts, shares, accounts and privileged groups within a few minutes is either a security tool, an administrator with a script, or an intruder orienting after initial access, and the three are easy to separate by asking who owns the source.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+      "excerpt": "dst_port=1",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature",
+      "excerpt": "signature=cic-ids2017:recon",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=1.0 confidence=0.989 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ],
+    "grounded": true,
+    "model_version": "investigation-1",
+    "created_at": "2026-09-29T09:00:08.219000+00:00"
+   },
+   "actions_detail": [
+    {
+     "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "action_type": "block_ip",
+     "destructive": true,
+     "target": "10.20.4.17",
+     "target_asset": {
+      "address": "10.20.4.17",
+      "hostname": "ws-fin-07",
+      "role": "finance workstation",
+      "protected": false
+     },
+     "rationale": "Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+     "proposed_by": "containment_agent",
+     "risk_tier": "recommend",
+     "requires_human_approval": true,
+     "status": "pending",
+     "approved_by": null,
+     "decided_at": null,
+     "executed_at": null,
+     "failure_reason": null,
+     "created_at": "2026-09-29T09:00:08.219000+00:00",
+     "evidence": [
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1046#description.0",
+       "excerpt": "Scanning inside the network to find reachable services and versions, which is how an adversary converts a single foothold into a map of exploitable targets.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1046#detection.1",
+       "excerpt": "Internal source addresses contacting many destination ports or many destination hosts with a high proportion of failed handshakes. East-west flow records are the right telemetry; perimeter logs never see this.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "kb_chunk",
+       "ref": "kb://playbook/PB-SCAN-TRIAGE#description.0",
+       "excerpt": "Discovery activity is individually benign and collectively decisive. A workstation enumerating hosts, shares, accounts and privileged groups within a few minutes is either a security tool, an administrator with a script, or an intruder orienting after initial access, and the three are easy to separate by asking who owns the source.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+       "excerpt": "src_ip=10.20.4.17",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+       "excerpt": "dst_ip=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+       "excerpt": "dst_port=1",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+       "excerpt": "protocol=tcp",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+       "excerpt": "asset_id=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature",
+       "excerpt": "signature=cic-ids2017:recon",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "model_output",
+       "ref": "model://triage-1#anomaly_score",
+       "excerpt": "anomaly_score=1.0 confidence=0.989 decision=escalate",
+       "relevance": 1.0,
+       "untrusted": true
+      }
+     ]
+    }
+   ],
+   "interrupt": {
+    "node": "approve",
+    "reason": "block_ip on 10.20.4.17 requires approval (trust tier recommend): Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+    "subject_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+    "requested_at": "2026-09-29T09:00:08.219000+00:00"
+   },
+   "history": [
+    {
+     "node": "triage",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.203000+00:00",
+     "ended_at": "2026-09-29T09:00:08.203000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "investigate",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.219000+00:00",
+     "ended_at": "2026-09-29T09:00:08.219000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "contain",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.219000+00:00",
+     "ended_at": "2026-09-29T09:00:08.219000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    }
+   ],
+   "trust_tier": "recommend",
+   "checkpoints": {
+    "count": 4,
+    "verified": true,
+    "error": null
+   },
+   "timings": {
+    "detect_seconds": 0.062,
+    "pipeline_detect_seconds": 0.062,
+    "feed_lag_seconds": 0.0,
+    "contain_seconds": null,
+    "approval_wait_seconds": 0.0
+   },
+   "timeline": [
+    {
+     "seq": 5,
+     "recorded_at": "2026-09-29T09:00:08.203000Z",
+     "event_type": "triage_decided",
+     "actor": "triage_agent",
+     "subject_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+     "payload": {
+      "anomaly_score": 1.0,
+      "confidence": 0.9894933504348918,
+      "decision": "escalate",
+      "model_version": "triage-1",
+      "severity": "medium",
+      "technique_id": "T1046"
+     },
+     "row_hash": "54b197b8f2f0c2a3d2e7491af6265f262a4d8e3a4d7d394b966ba4468972a36f",
+     "prev_hash": "9bb29f15665b6b6686736b93287a88b53ad271b448d4b6abf8337e02ea7fe106"
+    },
+    {
+     "seq": 6,
+     "recorded_at": "2026-09-29T09:00:08.219000Z",
+     "event_type": "investigation_completed",
+     "actor": "investigation_agent",
+     "subject_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+     "payload": {
+      "grounded": true,
+      "n_claims": 4,
+      "n_evidence": 10,
+      "report_id": "51fb82f4-119c-5ba1-ac37-c5cce090790f",
+      "techniques": [
+       "T1046"
+      ]
+     },
+     "row_hash": "257a3798562378499e7deab22a2a7d66461ae39159ea9e65fc5f498b36dcd3c2",
+     "prev_hash": "54b197b8f2f0c2a3d2e7491af6265f262a4d8e3a4d7d394b966ba4468972a36f"
+    },
+    {
+     "seq": 7,
+     "recorded_at": "2026-09-29T09:00:08.219000Z",
+     "event_type": "action_proposed",
+     "actor": "containment_agent",
+     "subject_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "payload": {
+      "action_type": "block_ip",
+      "alert_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+      "exploratory": false,
+      "policy": {
+       "choice": "escalate",
+       "confidence": 0.384239,
+       "expected": {
+        "dismiss": -0.306189,
+        "escalate": 0.330069,
+        "monitor": -0.074955
+       },
+       "exploratory": false,
+       "fitted": true,
+       "floored": false,
+       "response": "escalate"
+      },
+      "requires_human_approval": true,
+      "response": "escalate",
+      "risk_tier": "recommend",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "27a672069958292d2b96e5e85258f08d0fd4f72fe713d3b0aa7d989c3601aa86",
+     "prev_hash": "257a3798562378499e7deab22a2a7d66461ae39159ea9e65fc5f498b36dcd3c2"
+    },
+    {
+     "seq": 8,
+     "recorded_at": "2026-09-29T09:00:08.219000Z",
+     "event_type": "approval_requested",
+     "actor": "containment_agent",
+     "subject_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "payload": {
+      "action_type": "block_ip",
+      "rationale": "Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "3001902abb00761c3bf50c66a6480f16ba5bc12efa04b38748a777390362d42a",
+     "prev_hash": "27a672069958292d2b96e5e85258f08d0fd4f72fe713d3b0aa7d989c3601aa86"
+    }
+   ],
+   "wire": {
+    "calls": [],
+    "refusals": [],
+    "executions": []
+   },
+   "policy": {
+    "choice": "escalate",
+    "confidence": 0.384239,
+    "expected": {
+     "dismiss": -0.306189,
+     "escalate": 0.330069,
+     "monitor": -0.074955
+    },
+    "exploratory": false,
+    "fitted": true,
+    "floored": false,
+    "response": "escalate",
+    "seq": 7
+   },
+   "stalled": false
+  },
+  "f5b10e9d-25b9-55fa-ad6f-90852d2aac13": {
+   "incident_id": "f5b10e9d-25b9-55fa-ad6f-90852d2aac13",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Credential burst against fs-01 from the IT jump host",
+   "advisory_id": null,
+   "status": "awaiting_approval",
+   "severity": "high",
+   "decision": "escalate",
+   "confidence": 0.9999847280827058,
+   "technique_id": "T1110",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.1.10",
+    "hostname": "fs-01",
+    "role": "file server",
+    "protected": false
+   },
+   "src_ip": "10.20.0.5",
+   "dst_ip": "10.20.1.10",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:08.250000+00:00",
+   "pending_action": {
+    "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+    "action_type": "block_ip",
+    "destructive": true,
+    "target": "10.20.0.5",
+    "target_asset": {
+     "address": "10.20.0.5",
+     "hostname": "jump-01",
+     "role": "IT jump host",
+     "protected": true
+    },
+    "rationale": "Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+    "proposed_by": "containment_agent",
+    "risk_tier": "recommend",
+    "requires_human_approval": true,
+    "status": "pending",
+    "approved_by": null,
+    "decided_at": null,
+    "executed_at": null,
+    "failure_reason": null,
+    "created_at": "2026-09-29T09:00:08.250000+00:00",
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#description.0",
+      "excerpt": "Repeated authentication attempts to discover valid credentials, whether by guessing many passwords against one account, one common password against many accounts, or replaying credential pairs leaked elsewhere.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#detection.1",
+      "excerpt": "Count failures per source and per account over a sliding window, and count distinct accounts attempted per source. The spraying variant is invisible to per-account lockout thresholds, so distinct-account fan-out is the signal that catches it.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.003#description.0",
+      "excerpt": "Trying a small number of likely passwords across a large number of accounts, staying below per-account lockout thresholds while still succeeding somewhere in a large directory.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.004#description.0",
+      "excerpt": "Replay of username and password pairs harvested from unrelated breaches against the victim's services, exploiting password reuse rather than any weakness in the target.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+      "excerpt": "src_ip=10.20.0.5",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+      "excerpt": "dst_port=21",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature",
+      "excerpt": "signature=cic-ids2017:brute_force",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9982756281647509 confidence=1.000 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ]
+   },
+   "actions": [
+    {
+     "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "action_type": "block_ip",
+     "target": "10.20.0.5",
+     "status": "pending"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.094,
+   "contain_seconds": null,
+   "error": null,
+   "alert": {
+    "alert_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+    "source": "network_ids",
+    "timestamp": "2026-09-29T08:58:38.141000+00:00",
+    "ingested_at": "2026-09-29T09:00:08.141000+00:00",
+    "asset": {
+     "address": "10.20.1.10",
+     "hostname": "fs-01",
+     "role": "file server",
+     "protected": false
+    },
+    "signature": "cic-ids2017:brute_force",
+    "src_ip": "10.20.0.5",
+    "dst_ip": "10.20.1.10",
+    "src_port": 57607,
+    "dst_port": 21,
+    "protocol": "tcp",
+    "dataset": "cic-ids2017",
+    "raw_payload": "{\" Destination IP\":\"10.20.1.10\",\" Destination Port\":21,\" Flow Duration\":51853,\" Flow Packets/s\":578.5513938444258,\" Label\":\"SSH-Patator\",\" Protocol\":6,\" Source IP\":\"10.20.0.5\",\" Source Port\":57607,\" Timestamp\":\"29/09/2026 08:58:38\",\" Total Backward Packets\":0,\" Total Fwd Packets\":30,\" Total Length of Bwd Packets\":0,\"Flow Bytes/s\":29833.966875910894,\"Flow ID\":\"synthetic-2741\",\"Total Length of Fwd Packets\":1547}",
+    "untrusted": true,
+    "injection": {
+     "verdict": "clean",
+     "summary": "clean (score=0.00)",
+     "sha256": "cb3c73c08cea49f82803ab3769a15e67bb16ba7a2ae72ffe62916eeaa53388de"
+    },
+    "features": {
+     "bytes_per_second": 29834.339382485105,
+     "bytes_ratio_src_to_total": 1.0,
+     "dst_bytes": 0.0,
+     "dst_distinct_src_ips_window": 1.0,
+     "dst_flow_count_window": 34.0,
+     "dst_mean_packet_bytes": 0.0,
+     "dst_packets": 0.0,
+     "dst_port": 21,
+     "duration_seconds": 0.051852999999999996,
+     "packets_per_second": 578.5586176306097,
+     "protocol_number": 6,
+     "src_bytes": 1547.0,
+     "src_bytes_sum_window": 123591.0,
+     "src_distinct_dst_ips_window": 1.0,
+     "src_distinct_dst_ports_window": 1.0,
+     "src_flow_count_window": 34.0,
+     "src_interarrival_cv_window": 1.7677669529663689,
+     "src_interarrival_mean_window": 0.24242424242424243,
+     "src_mean_packet_bytes": 51.56666666666667,
+     "src_packets": 30.0,
+     "total_bytes": 1547.0,
+     "total_packets": 30.0
+    }
+   },
+   "triage": {
+    "decision": "escalate",
+    "severity": "high",
+    "confidence": 0.9999847280827058,
+    "technique_id": "T1110",
+    "rationale": "Anomaly ensemble scored 0.998 (escalate>=0.995, monitor>=0.985). Classifier: brute_force at p=1.000. Decision: escalate.",
+    "supporting_fields": [
+     "src_flow_count_window",
+     "dst_port",
+     "src_interarrival_cv_window"
+    ],
+    "anomaly_score": 0.9982756281647509,
+    "injection_verdict": "clean",
+    "model_version": "triage-1",
+    "latency_ms": 0.0,
+    "decided_at": "2026-09-29T09:00:08.235000+00:00"
+   },
+   "report": {
+    "report_id": "5ea2ca9a-66f8-5b14-9cc5-d5dcc30c9475",
+    "agent": "investigation_agent",
+    "summary": "HIGH \u2014 escalate on asset 10.20.1.10 mapped to T1110. Anomaly ensemble scored 0.998 (escalate>=0.995, monitor>=0.985). Classifier: brute_force at p=1.000. Decision: escalate.",
+    "severity": "high",
+    "confidence": 0.9999847280827058,
+    "techniques": [
+     "T1110",
+     "T1110.003",
+     "T1110.004"
+    ],
+    "recommended_actions": [
+     "block_ip",
+     "disable_account"
+    ],
+    "claims": [
+     {
+      "statement": "The detection ensemble scored this flow 0.998 and triage decided escalate at confidence 1.00.",
+      "refs": [
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "The activity involves asset 10.20.1.10 and is recorded on the network_ids feed.",
+      "refs": [
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature"
+      ]
+     },
+     {
+      "statement": "The observed pattern maps to MITRE ATT&CK T1110, supported by src_flow_count_window, dst_port, src_interarrival_cv_window.",
+      "refs": [
+       "kb://technique/T1110#description.0",
+       "kb://technique/T1110#detection.1",
+       "kb://technique/T1110.003#description.0",
+       "kb://technique/T1110.004#description.0",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port"
+      ]
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#description.0",
+      "excerpt": "Repeated authentication attempts to discover valid credentials, whether by guessing many passwords against one account, one common password against many accounts, or replaying credential pairs leaked elsewhere.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#detection.1",
+      "excerpt": "Count failures per source and per account over a sliding window, and count distinct accounts attempted per source. The spraying variant is invisible to per-account lockout thresholds, so distinct-account fan-out is the signal that catches it.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.003#description.0",
+      "excerpt": "Trying a small number of likely passwords across a large number of accounts, staying below per-account lockout thresholds while still succeeding somewhere in a large directory.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.004#description.0",
+      "excerpt": "Replay of username and password pairs harvested from unrelated breaches against the victim's services, exploiting password reuse rather than any weakness in the target.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+      "excerpt": "src_ip=10.20.0.5",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+      "excerpt": "dst_port=21",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature",
+      "excerpt": "signature=cic-ids2017:brute_force",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9982756281647509 confidence=1.000 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ],
+    "grounded": true,
+    "model_version": "investigation-1",
+    "created_at": "2026-09-29T09:00:08.235000+00:00"
+   },
+   "actions_detail": [
+    {
+     "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "action_type": "block_ip",
+     "destructive": true,
+     "target": "10.20.0.5",
+     "target_asset": {
+      "address": "10.20.0.5",
+      "hostname": "jump-01",
+      "role": "IT jump host",
+      "protected": true
+     },
+     "rationale": "Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+     "proposed_by": "containment_agent",
+     "risk_tier": "recommend",
+     "requires_human_approval": true,
+     "status": "pending",
+     "approved_by": null,
+     "decided_at": null,
+     "executed_at": null,
+     "failure_reason": null,
+     "created_at": "2026-09-29T09:00:08.250000+00:00",
+     "evidence": [
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110#description.0",
+       "excerpt": "Repeated authentication attempts to discover valid credentials, whether by guessing many passwords against one account, one common password against many accounts, or replaying credential pairs leaked elsewhere.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110#detection.1",
+       "excerpt": "Count failures per source and per account over a sliding window, and count distinct accounts attempted per source. The spraying variant is invisible to per-account lockout thresholds, so distinct-account fan-out is the signal that catches it.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110.003#description.0",
+       "excerpt": "Trying a small number of likely passwords across a large number of accounts, staying below per-account lockout thresholds while still succeeding somewhere in a large directory.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110.004#description.0",
+       "excerpt": "Replay of username and password pairs harvested from unrelated breaches against the victim's services, exploiting password reuse rather than any weakness in the target.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+       "excerpt": "src_ip=10.20.0.5",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+       "excerpt": "dst_ip=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+       "excerpt": "dst_port=21",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+       "excerpt": "protocol=tcp",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+       "excerpt": "asset_id=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature",
+       "excerpt": "signature=cic-ids2017:brute_force",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "model_output",
+       "ref": "model://triage-1#anomaly_score",
+       "excerpt": "anomaly_score=0.9982756281647509 confidence=1.000 decision=escalate",
+       "relevance": 1.0,
+       "untrusted": true
+      }
+     ]
+    }
+   ],
+   "interrupt": {
+    "node": "approve",
+    "reason": "block_ip on 10.20.0.5 requires approval (trust tier recommend): Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+    "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+    "requested_at": "2026-09-29T09:00:08.250000+00:00"
+   },
+   "history": [
+    {
+     "node": "triage",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.235000+00:00",
+     "ended_at": "2026-09-29T09:00:08.235000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "investigate",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.235000+00:00",
+     "ended_at": "2026-09-29T09:00:08.235000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "contain",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.250000+00:00",
+     "ended_at": "2026-09-29T09:00:08.250000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    }
+   ],
+   "trust_tier": "recommend",
+   "checkpoints": {
+    "count": 4,
+    "verified": true,
+    "error": null
+   },
+   "timings": {
+    "detect_seconds": 0.094,
+    "pipeline_detect_seconds": 0.094,
+    "feed_lag_seconds": 0.0,
+    "contain_seconds": null,
+    "approval_wait_seconds": 0.0
+   },
+   "timeline": [
+    {
+     "seq": 9,
+     "recorded_at": "2026-09-29T09:00:08.235000Z",
+     "event_type": "triage_decided",
+     "actor": "triage_agent",
+     "subject_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+     "payload": {
+      "anomaly_score": 0.9982756281647509,
+      "confidence": 0.9999847280827058,
+      "decision": "escalate",
+      "model_version": "triage-1",
+      "severity": "high",
+      "technique_id": "T1110"
+     },
+     "row_hash": "952a8c1512326d56b58612148bd4ec593c5a7aec9f0a772a60c27e644a0bdadb",
+     "prev_hash": "3001902abb00761c3bf50c66a6480f16ba5bc12efa04b38748a777390362d42a"
+    },
+    {
+     "seq": 10,
+     "recorded_at": "2026-09-29T09:00:08.235000Z",
+     "event_type": "investigation_completed",
+     "actor": "investigation_agent",
+     "subject_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+     "payload": {
+      "grounded": true,
+      "n_claims": 3,
+      "n_evidence": 11,
+      "report_id": "5ea2ca9a-66f8-5b14-9cc5-d5dcc30c9475",
+      "techniques": [
+       "T1110",
+       "T1110.003",
+       "T1110.004"
+      ]
+     },
+     "row_hash": "e1d1da8c6a9c7fcba4f5956d60a2a04573f868e27826222e2512b62781d384e3",
+     "prev_hash": "952a8c1512326d56b58612148bd4ec593c5a7aec9f0a772a60c27e644a0bdadb"
+    },
+    {
+     "seq": 11,
+     "recorded_at": "2026-09-29T09:00:08.250000Z",
+     "event_type": "action_proposed",
+     "actor": "containment_agent",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "action_type": "block_ip",
+      "alert_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+      "exploratory": false,
+      "policy": {
+       "choice": "escalate",
+       "confidence": 0.409265,
+       "expected": {
+        "dismiss": -0.533436,
+        "escalate": 0.295808,
+        "monitor": -0.13892
+       },
+       "exploratory": false,
+       "fitted": true,
+       "floored": false,
+       "response": "escalate"
+      },
+      "requires_human_approval": true,
+      "response": "escalate",
+      "risk_tier": "recommend",
+      "target": "10.20.0.5"
+     },
+     "row_hash": "763d733e62750d6a3c9fb19d07129acc65c67606c597d6b060acd0f4944e6799",
+     "prev_hash": "e1d1da8c6a9c7fcba4f5956d60a2a04573f868e27826222e2512b62781d384e3"
+    },
+    {
+     "seq": 12,
+     "recorded_at": "2026-09-29T09:00:08.250000Z",
+     "event_type": "approval_requested",
+     "actor": "containment_agent",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "action_type": "block_ip",
+      "rationale": "Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+      "target": "10.20.0.5"
+     },
+     "row_hash": "109e2084c03983cd54557b4fcf6ae7e99449e068b6440ecf89d8a204eb7cfa35",
+     "prev_hash": "763d733e62750d6a3c9fb19d07129acc65c67606c597d6b060acd0f4944e6799"
+    }
+   ],
+   "wire": {
+    "calls": [],
+    "refusals": [],
+    "executions": []
+   },
+   "policy": {
+    "choice": "escalate",
+    "confidence": 0.409265,
+    "expected": {
+     "dismiss": -0.533436,
+     "escalate": 0.295808,
+     "monitor": -0.13892
+    },
+    "exploratory": false,
+    "fitted": true,
+    "floored": false,
+    "response": "escalate",
+    "seq": 11
+   },
+   "stalled": false
+  }
+ },
+ "decisions": [
+  [
+   "block_ip",
+   "10.20.0.5",
+   true,
+   200
+  ],
+  [
+   "block_ip",
+   "10.20.4.17",
+   false,
+   200
+  ],
+  [
+   "isolate_host",
+   "10.20.4.17",
+   true,
+   200
+  ]
+ ],
+ "details_after": {
+  "7987e00e-24b7-5821-b85a-8854c219faf6": {
+   "incident_id": "7987e00e-24b7-5821-b85a-8854c219faf6",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Second-stage fetch from ws-fin-07 after the phishing click",
+   "advisory_id": null,
+   "status": "completed",
+   "severity": "critical",
+   "decision": "escalate",
+   "confidence": 0.9740052000640058,
+   "technique_id": "T1105",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.4.17",
+    "hostname": "ws-fin-07",
+    "role": "finance workstation",
+    "protected": false
+   },
+   "src_ip": "10.20.4.17",
+   "dst_ip": "203.0.113.47",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:01:08.469000+00:00",
+   "pending_action": null,
+   "actions": [
+    {
+     "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "action_type": "isolate_host",
+     "target": "10.20.4.17",
+     "status": "executed"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.031,
+   "contain_seconds": 60.297,
+   "error": null,
+   "alert": {
+    "alert_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+    "source": "network_ids",
+    "timestamp": "2026-09-29T08:51:08.141000+00:00",
+    "ingested_at": "2026-09-29T09:00:08.141000+00:00",
+    "asset": {
+     "address": "10.20.4.17",
+     "hostname": "ws-fin-07",
+     "role": "finance workstation",
+     "protected": false
+    },
+    "signature": "cic-ids2017:infiltration",
+    "src_ip": "10.20.4.17",
+    "dst_ip": "203.0.113.47",
+    "src_port": 49444,
+    "dst_port": 22,
+    "protocol": "tcp",
+    "dataset": "cic-ids2017",
+    "raw_payload": "{\" Destination IP\":\"203.0.113.47\",\" Destination Port\":22,\" Flow Duration\":7534955,\" Flow Packets/s\":97.54537033559345,\" Label\":\"Infiltration\",\" Protocol\":6,\" Source IP\":\"10.20.4.17\",\" Source Port\":49444,\" Timestamp\":\"29/09/2026 08:51:08\",\" Total Backward Packets\":2,\" Total Fwd Packets\":733,\" Total Length of Bwd Packets\":71,\"Flow Bytes/s\":84982.32292510645,\"Flow ID\":\"synthetic-8062\",\"Total Length of Fwd Packets\":640267}",
+    "untrusted": true,
+    "injection": {
+     "verdict": "clean",
+     "summary": "clean (score=0.00)",
+     "sha256": "74085cf3bfd8782c28d9183945c477883555a172904546148a03d55b835c7329"
+    },
+    "features": {
+     "bytes_per_second": 84982.32570732008,
+     "bytes_ratio_src_to_total": 0.9998891210579413,
+     "dst_bytes": 71.0,
+     "dst_distinct_src_ips_window": 0.0,
+     "dst_flow_count_window": 0.0,
+     "dst_mean_packet_bytes": 35.5,
+     "dst_packets": 2.0,
+     "dst_port": 22,
+     "duration_seconds": 7.534955,
+     "packets_per_second": 97.54537352910535,
+     "protocol_number": 6,
+     "src_bytes": 640267.0,
+     "src_bytes_sum_window": 2148267.0,
+     "src_distinct_dst_ips_window": 3.0,
+     "src_distinct_dst_ports_window": 1.0,
+     "src_flow_count_window": 3.0,
+     "src_interarrival_cv_window": 0.3181818181818182,
+     "src_interarrival_mean_window": 22.0,
+     "src_mean_packet_bytes": 873.4884038199182,
+     "src_packets": 733.0,
+     "total_bytes": 640338.0,
+     "total_packets": 735.0
+    }
+   },
+   "triage": {
+    "decision": "escalate",
+    "severity": "critical",
+    "confidence": 0.9740052000640058,
+    "technique_id": "T1105",
+    "rationale": "Anomaly ensemble scored 0.996 (escalate>=0.995, monitor>=0.985). Classifier: infiltration at p=0.962. Decision: escalate.",
+    "supporting_fields": [
+     "src_bytes",
+     "bytes_ratio_src_to_total",
+     "src_bytes_sum_window"
+    ],
+    "anomaly_score": 0.9964084967678378,
+    "injection_verdict": "clean",
+    "model_version": "triage-1",
+    "latency_ms": 15.999999995983671,
+    "decided_at": "2026-09-29T09:00:08.156000+00:00"
+   },
+   "report": {
+    "report_id": "9f5ed254-4164-5403-895b-800b3b092ac4",
+    "agent": "investigation_agent",
+    "summary": "CRITICAL \u2014 escalate on asset 10.20.4.17 mapped to T1105. Anomaly ensemble scored 0.996 (escalate>=0.995, monitor>=0.985). Classifier: infiltration at p=0.962. Decision: escalate.",
+    "severity": "critical",
+    "confidence": 0.9740052000640058,
+    "techniques": [
+     "T1105"
+    ],
+    "recommended_actions": [
+     "isolate_host",
+     "quarantine_file"
+    ],
+    "claims": [
+     {
+      "statement": "The detection ensemble scored this flow 0.996 and triage decided escalate at confidence 0.97.",
+      "refs": [
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "The activity involves asset 10.20.4.17 and is recorded on the network_ids feed.",
+      "refs": [
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+       "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature"
+      ]
+     },
+     {
+      "statement": "The observed pattern maps to MITRE ATT&CK T1105, supported by src_bytes, bytes_ratio_src_to_total, src_bytes_sum_window.",
+      "refs": [
+       "kb://technique/T1105#description.0",
+       "kb://technique/T1105#detection.1",
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "Response guidance for this technique is available in the indexed playbooks and advisories.",
+      "refs": [
+       "kb://playbook/PB-C2-BEACON#description.0"
+      ]
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#description.0",
+      "excerpt": "Transfer of tooling into the environment from outside after initial access, commonly using built-in download utilities so nothing unusual needs to be present first.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1105#detection.1",
+      "excerpt": "Built-in transfer utilities invoked with external URLs by non-administrative parents, and executable content written immediately after an outbound connection to a low-reputation host.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-C2-BEACON#description.0",
+      "excerpt": "Command and control hides in permitted protocols, so the discriminator is the pattern rather than the destination. Interval regularity, small and uniform request sizes and a single internal client per destination are the durable signals; domain reputation is a weak one because adversaries increasingly use well-reputed hosting and legitimate services.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+      "excerpt": "dst_ip=203.0.113.47",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+      "excerpt": "dst_port=22",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+      "excerpt": "asset_id=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature",
+      "excerpt": "signature=cic-ids2017:infiltration",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9964084967678378 confidence=0.974 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ],
+    "grounded": true,
+    "model_version": "investigation-1",
+    "created_at": "2026-09-29T09:00:08.172000+00:00"
+   },
+   "actions_detail": [
+    {
+     "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "action_type": "isolate_host",
+     "destructive": true,
+     "target": "10.20.4.17",
+     "target_asset": {
+      "address": "10.20.4.17",
+      "hostname": "ws-fin-07",
+      "role": "finance workstation",
+      "protected": false
+     },
+     "rationale": "Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+     "proposed_by": "containment_agent",
+     "risk_tier": "recommend",
+     "requires_human_approval": true,
+     "status": "executed",
+     "approved_by": "maya@acme.example",
+     "decided_at": "2026-09-29T09:01:08.438000+00:00",
+     "executed_at": "2026-09-29T09:01:08.453000+00:00",
+     "failure_reason": null,
+     "created_at": "2026-09-29T09:00:08.188000+00:00",
+     "evidence": [
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1105#description.0",
+       "excerpt": "Transfer of tooling into the environment from outside after initial access, commonly using built-in download utilities so nothing unusual needs to be present first.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1105#detection.1",
+       "excerpt": "Built-in transfer utilities invoked with external URLs by non-administrative parents, and executable content written immediately after an outbound connection to a low-reputation host.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "kb_chunk",
+       "ref": "kb://playbook/PB-C2-BEACON#description.0",
+       "excerpt": "Command and control hides in permitted protocols, so the discriminator is the pattern rather than the destination. Interval regularity, small and uniform request sizes and a single internal client per destination are the durable signals; domain reputation is a weak one because adversaries increasingly use well-reputed hosting and legitimate services.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#src_ip",
+       "excerpt": "src_ip=10.20.4.17",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_ip",
+       "excerpt": "dst_ip=203.0.113.47",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#dst_port",
+       "excerpt": "dst_port=22",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#protocol",
+       "excerpt": "protocol=tcp",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#asset_id",
+       "excerpt": "asset_id=10.20.4.17",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a#signature",
+       "excerpt": "signature=cic-ids2017:infiltration",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "model_output",
+       "ref": "model://triage-1#anomaly_score",
+       "excerpt": "anomaly_score=0.9964084967678378 confidence=0.974 decision=escalate",
+       "relevance": 1.0,
+       "untrusted": true
+      }
+     ]
+    }
+   ],
+   "interrupt": null,
+   "history": [
+    {
+     "node": "triage",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.156000+00:00",
+     "ended_at": "2026-09-29T09:00:08.172000+00:00",
+     "duration_ms": 16.0,
+     "detail": ""
+    },
+    {
+     "node": "investigate",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.172000+00:00",
+     "ended_at": "2026-09-29T09:00:08.172000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "contain",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.188000+00:00",
+     "ended_at": "2026-09-29T09:00:08.188000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "approve",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:01:08.438000+00:00",
+     "ended_at": "2026-09-29T09:01:08.438000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "execute",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:01:08.453000+00:00",
+     "ended_at": "2026-09-29T09:01:08.469000+00:00",
+     "duration_ms": 16.0,
+     "detail": ""
+    }
+   ],
+   "trust_tier": "recommend",
+   "checkpoints": {
+    "count": 7,
+    "verified": true,
+    "error": null
+   },
+   "timings": {
+    "detect_seconds": 0.031,
+    "pipeline_detect_seconds": 0.031,
+    "feed_lag_seconds": 0.0,
+    "contain_seconds": 60.297,
+    "approval_wait_seconds": 60.25
+   },
+   "timeline": [
+    {
+     "seq": 1,
+     "recorded_at": "2026-09-29T09:00:08.172000Z",
+     "event_type": "triage_decided",
+     "actor": "triage_agent",
+     "subject_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+     "payload": {
+      "anomaly_score": 0.9964084967678378,
+      "confidence": 0.9740052000640058,
+      "decision": "escalate",
+      "model_version": "triage-1",
+      "severity": "critical",
+      "technique_id": "T1105"
+     },
+     "row_hash": "13329fb24022b87972b8f3c0ca24e6f0c4dc325c3437c980df975e398373178c",
+     "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "seq": 2,
+     "recorded_at": "2026-09-29T09:00:08.172000Z",
+     "event_type": "investigation_completed",
+     "actor": "investigation_agent",
+     "subject_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+     "payload": {
+      "grounded": true,
+      "n_claims": 4,
+      "n_evidence": 10,
+      "report_id": "9f5ed254-4164-5403-895b-800b3b092ac4",
+      "techniques": [
+       "T1105"
+      ]
+     },
+     "row_hash": "0e7087ccd83a3ffa577766fe6d1d9146ccc3a61597697ab3aecc1d96ee33245d",
+     "prev_hash": "13329fb24022b87972b8f3c0ca24e6f0c4dc325c3437c980df975e398373178c"
+    },
+    {
+     "seq": 3,
+     "recorded_at": "2026-09-29T09:00:08.188000Z",
+     "event_type": "action_proposed",
+     "actor": "containment_agent",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "alert_id": "0978ffe7-bd3f-5fbf-8ec9-253f7725cd1a",
+      "exploratory": false,
+      "policy": {
+       "choice": "escalate",
+       "confidence": 0.310247,
+       "expected": {
+        "dismiss": -0.361101,
+        "escalate": 0.20286,
+        "monitor": -0.117959
+       },
+       "exploratory": false,
+       "fitted": true,
+       "floored": false,
+       "response": "escalate"
+      },
+      "requires_human_approval": true,
+      "response": "escalate",
+      "risk_tier": "recommend",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "1c76b5ba49cc88c843754b910078aef8944f4bfba712e3a82a3694aa943575cb",
+     "prev_hash": "0e7087ccd83a3ffa577766fe6d1d9146ccc3a61597697ab3aecc1d96ee33245d"
+    },
+    {
+     "seq": 4,
+     "recorded_at": "2026-09-29T09:00:08.188000Z",
+     "event_type": "approval_requested",
+     "actor": "containment_agent",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "rationale": "Policy chose escalate (confidence 0.31) for a critical alert triaged escalate and mapped to T1105. Proposed action: isolate_host.",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "9bb29f15665b6b6686736b93287a88b53ad271b448d4b6abf8337e02ea7fe106",
+     "prev_hash": "1c76b5ba49cc88c843754b910078aef8944f4bfba712e3a82a3694aa943575cb"
+    },
+    {
+     "seq": 17,
+     "recorded_at": "2026-09-29T09:01:08.438000Z",
+     "event_type": "approval_granted",
+     "actor": "orchestrator",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "approved": true,
+      "approver": "maya@acme.example",
+      "note": "reviewed in the dashboard",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "ee080c392deaeff4e6bb7ac74227e1377cc80c00dc9b7dfbf98d0f201c66e7a9",
+     "prev_hash": "0192ba6a8ac071d55736b537e10ac3131a18fb26ddfab87436b16faeceb65bd3"
+    },
+    {
+     "seq": 18,
+     "recorded_at": "2026-09-29T09:01:08.453000Z",
+     "event_type": "connector_called",
+     "actor": "connector:wazuh",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "approval_status": "approved",
+      "attempt": 1,
+      "connector": "wazuh",
+      "duration_ms": 3.472,
+      "error": null,
+      "method": "POST",
+      "request_sha256": null,
+      "requires_human_approval": true,
+      "route": "auth",
+      "status": 200
+     },
+     "row_hash": "a638b0ed9fbd7740b66cb1c9124eee7de279a298cb4ca87bd686ce8639d68557",
+     "prev_hash": "ee080c392deaeff4e6bb7ac74227e1377cc80c00dc9b7dfbf98d0f201c66e7a9"
+    },
+    {
+     "seq": 19,
+     "recorded_at": "2026-09-29T09:01:08.453000Z",
+     "event_type": "connector_called",
+     "actor": "connector:wazuh",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "approval_status": "approved",
+      "attempt": 1,
+      "connector": "wazuh",
+      "duration_ms": 3.56,
+      "error": null,
+      "method": "GET",
+      "request_sha256": null,
+      "requires_human_approval": true,
+      "route": "agents.get",
+      "status": 200
+     },
+     "row_hash": "7102c280e37941e8d6c7831c2b85c3d65ea2ce4bfe22aeb69edb4428cd553e08",
+     "prev_hash": "a638b0ed9fbd7740b66cb1c9124eee7de279a298cb4ca87bd686ce8639d68557"
+    },
+    {
+     "seq": 20,
+     "recorded_at": "2026-09-29T09:01:08.469000Z",
+     "event_type": "connector_called",
+     "actor": "connector:wazuh",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "approval_status": "approved",
+      "attempt": 1,
+      "connector": "wazuh",
+      "duration_ms": 1.867,
+      "error": null,
+      "method": "PUT",
+      "request_sha256": "a979c9aa93d540f7508a47ad43c92a17e3f52c333a037fc7c3f89dc5d4608b39",
+      "requires_human_approval": true,
+      "route": "active_response.run",
+      "status": 200
+     },
+     "row_hash": "dd543687bdb8fe7f920a66ac6f1ddd6dd9d4e386e8b0cb07565bc4d69c8c353c",
+     "prev_hash": "7102c280e37941e8d6c7831c2b85c3d65ea2ce4bfe22aeb69edb4428cd553e08"
+    },
+    {
+     "seq": 21,
+     "recorded_at": "2026-09-29T09:01:08.469000Z",
+     "event_type": "action_executed",
+     "actor": "containment_agent",
+     "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+     "payload": {
+      "action_type": "isolate_host",
+      "approved_by": "maya@acme.example",
+      "detail": "wazuh sentinel-isolate on host 10.20.4.17 (agent 002) via agent(s) 002",
+      "requires_human_approval": true,
+      "target": "10.20.4.17"
+     },
+     "row_hash": "c57d0f2d41e131f03b017ef16a743bebbd8fd6edc741bc99eb56a501f890dd92",
+     "prev_hash": "dd543687bdb8fe7f920a66ac6f1ddd6dd9d4e386e8b0cb07565bc4d69c8c353c"
+    }
+   ],
+   "wire": {
+    "calls": [
+     {
+      "seq": 18,
+      "recorded_at": "2026-09-29T09:01:08.453000Z",
+      "event_type": "connector_called",
+      "actor": "connector:wazuh",
+      "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+      "payload": {
+       "action_type": "isolate_host",
+       "approval_status": "approved",
+       "attempt": 1,
+       "connector": "wazuh",
+       "duration_ms": 3.472,
+       "error": null,
+       "method": "POST",
+       "request_sha256": null,
+       "requires_human_approval": true,
+       "route": "auth",
+       "status": 200
+      },
+      "row_hash": "a638b0ed9fbd7740b66cb1c9124eee7de279a298cb4ca87bd686ce8639d68557",
+      "prev_hash": "ee080c392deaeff4e6bb7ac74227e1377cc80c00dc9b7dfbf98d0f201c66e7a9"
+     },
+     {
+      "seq": 19,
+      "recorded_at": "2026-09-29T09:01:08.453000Z",
+      "event_type": "connector_called",
+      "actor": "connector:wazuh",
+      "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+      "payload": {
+       "action_type": "isolate_host",
+       "approval_status": "approved",
+       "attempt": 1,
+       "connector": "wazuh",
+       "duration_ms": 3.56,
+       "error": null,
+       "method": "GET",
+       "request_sha256": null,
+       "requires_human_approval": true,
+       "route": "agents.get",
+       "status": 200
+      },
+      "row_hash": "7102c280e37941e8d6c7831c2b85c3d65ea2ce4bfe22aeb69edb4428cd553e08",
+      "prev_hash": "a638b0ed9fbd7740b66cb1c9124eee7de279a298cb4ca87bd686ce8639d68557"
+     },
+     {
+      "seq": 20,
+      "recorded_at": "2026-09-29T09:01:08.469000Z",
+      "event_type": "connector_called",
+      "actor": "connector:wazuh",
+      "subject_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+      "payload": {
+       "action_type": "isolate_host",
+       "approval_status": "approved",
+       "attempt": 1,
+       "connector": "wazuh",
+       "duration_ms": 1.867,
+       "error": null,
+       "method": "PUT",
+       "request_sha256": "a979c9aa93d540f7508a47ad43c92a17e3f52c333a037fc7c3f89dc5d4608b39",
+       "requires_human_approval": true,
+       "route": "active_response.run",
+       "status": 200
+      },
+      "row_hash": "dd543687bdb8fe7f920a66ac6f1ddd6dd9d4e386e8b0cb07565bc4d69c8c353c",
+      "prev_hash": "7102c280e37941e8d6c7831c2b85c3d65ea2ce4bfe22aeb69edb4428cd553e08"
+     }
+    ],
+    "refusals": [],
+    "executions": [
+     {
+      "action_id": "54a7d76a-9b8b-493b-b74f-8e26961aa3bb",
+      "action_type": "isolate_host",
+      "target": "10.20.4.17",
+      "connector": "wazuh",
+      "succeeded": true,
+      "detail": "wazuh sentinel-isolate on host 10.20.4.17 (agent 002) via agent(s) 002",
+      "reference": "wazuh:active-response:sentinel-isolate:002",
+      "replayed": false,
+      "approved_by": "maya@acme.example"
+     }
+    ]
+   },
+   "policy": {
+    "choice": "escalate",
+    "confidence": 0.310247,
+    "expected": {
+     "dismiss": -0.361101,
+     "escalate": 0.20286,
+     "monitor": -0.117959
+    },
+    "exploratory": false,
+    "fitted": true,
+    "floored": false,
+    "response": "escalate",
+    "seq": 3
+   },
+   "stalled": false
+  },
+  "adea062c-38b4-5fdc-ae78-3196075840f0": {
+   "incident_id": "adea062c-38b4-5fdc-ae78-3196075840f0",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Internal discovery sweep from ws-fin-07 against fs-01",
+   "advisory_id": null,
+   "status": "completed",
+   "severity": "medium",
+   "decision": "escalate",
+   "confidence": 0.9894933504348918,
+   "technique_id": "T1046",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.1.10",
+    "hostname": "fs-01",
+    "role": "file server",
+    "protected": false
+   },
+   "src_ip": "10.20.4.17",
+   "dst_ip": "10.20.1.10",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:48.406000+00:00",
+   "pending_action": null,
+   "actions": [
+    {
+     "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "action_type": "block_ip",
+     "target": "10.20.4.17",
+     "status": "rejected"
+    }
+   ],
+   "failed_actions": 0,
+   "detect_seconds": 0.062,
+   "contain_seconds": null,
+   "error": null,
+   "alert": {
+    "alert_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+    "source": "network_ids",
+    "timestamp": "2026-09-29T08:54:48.141000+00:00",
+    "ingested_at": "2026-09-29T09:00:08.141000+00:00",
+    "asset": {
+     "address": "10.20.1.10",
+     "hostname": "fs-01",
+     "role": "file server",
+     "protected": false
+    },
+    "signature": "cic-ids2017:recon",
+    "src_ip": "10.20.4.17",
+    "dst_ip": "10.20.1.10",
+    "src_port": 51566,
+    "dst_port": 1,
+    "protocol": "tcp",
+    "dataset": "cic-ids2017",
+    "raw_payload": "{\" Destination IP\":\"10.20.1.10\",\" Destination Port\":1,\" Flow Duration\":1183,\" Flow Packets/s\":844.8602744991836,\" Label\":\"PortScan\",\" Protocol\":6,\" Source IP\":\"10.20.4.17\",\" Source Port\":51566,\" Timestamp\":\"29/09/2026 08:54:48\",\" Total Backward Packets\":0,\" Total Fwd Packets\":1,\" Total Length of Bwd Packets\":0,\"Flow Bytes/s\":27880.389058473058,\"Flow ID\":\"synthetic-5173\",\"Total Length of Fwd Packets\":33}",
+    "untrusted": true,
+    "injection": {
+     "verdict": "clean",
+     "summary": "clean (score=0.00)",
+     "sha256": "4554ea3aa1cd3a65bf1b60f928252b3f96ea547847e9619c6b089c6041cd8cfe"
+    },
+    "features": {
+     "bytes_per_second": 27895.181741335586,
+     "bytes_ratio_src_to_total": 1.0,
+     "dst_bytes": 0.0,
+     "dst_distinct_src_ips_window": 1.0,
+     "dst_flow_count_window": 6.0,
+     "dst_mean_packet_bytes": 0.0,
+     "dst_packets": 0.0,
+     "dst_port": 1,
+     "duration_seconds": 0.001183,
+     "packets_per_second": 845.30853761623,
+     "protocol_number": 6,
+     "src_bytes": 33.0,
+     "src_bytes_sum_window": 216.0,
+     "src_distinct_dst_ips_window": 1.0,
+     "src_distinct_dst_ports_window": 6.0,
+     "src_flow_count_window": 6.0,
+     "src_interarrival_cv_window": 2.0,
+     "src_interarrival_mean_window": 0.2,
+     "src_mean_packet_bytes": 33.0,
+     "src_packets": 1.0,
+     "total_bytes": 33.0,
+     "total_packets": 1.0
+    }
+   },
+   "triage": {
+    "decision": "escalate",
+    "severity": "medium",
+    "confidence": 0.9894933504348918,
+    "technique_id": "T1046",
+    "rationale": "Anomaly ensemble scored 1.000 (escalate>=0.995, monitor>=0.985). Classifier: recon at p=0.848. Decision: escalate.",
+    "supporting_fields": [
+     "src_distinct_dst_ports_window",
+     "src_flow_count_window",
+     "dst_port"
+    ],
+    "anomaly_score": 1.0,
+    "injection_verdict": "clean",
+    "model_version": "triage-1",
+    "latency_ms": 0.0,
+    "decided_at": "2026-09-29T09:00:08.203000+00:00"
+   },
+   "report": {
+    "report_id": "51fb82f4-119c-5ba1-ac37-c5cce090790f",
+    "agent": "investigation_agent",
+    "summary": "MEDIUM \u2014 escalate on asset 10.20.1.10 mapped to T1046. Anomaly ensemble scored 1.000 (escalate>=0.995, monitor>=0.985). Classifier: recon at p=0.848. Decision: escalate.",
+    "severity": "medium",
+    "confidence": 0.9894933504348918,
+    "techniques": [
+     "T1046"
+    ],
+    "recommended_actions": [
+     "block_ip"
+    ],
+    "claims": [
+     {
+      "statement": "The detection ensemble scored this flow 1.000 and triage decided escalate at confidence 0.99.",
+      "refs": [
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "The activity involves asset 10.20.1.10 and is recorded on the network_ids feed.",
+      "refs": [
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature"
+      ]
+     },
+     {
+      "statement": "The observed pattern maps to MITRE ATT&CK T1046, supported by src_distinct_dst_ports_window, src_flow_count_window, dst_port.",
+      "refs": [
+       "kb://technique/T1046#description.0",
+       "kb://technique/T1046#detection.1",
+       "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port"
+      ]
+     },
+     {
+      "statement": "Response guidance for this technique is available in the indexed playbooks and advisories.",
+      "refs": [
+       "kb://playbook/PB-SCAN-TRIAGE#description.0"
+      ]
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#description.0",
+      "excerpt": "Scanning inside the network to find reachable services and versions, which is how an adversary converts a single foothold into a map of exploitable targets.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1046#detection.1",
+      "excerpt": "Internal source addresses contacting many destination ports or many destination hosts with a high proportion of failed handshakes. East-west flow records are the right telemetry; perimeter logs never see this.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "kb_chunk",
+      "ref": "kb://playbook/PB-SCAN-TRIAGE#description.0",
+      "excerpt": "Discovery activity is individually benign and collectively decisive. A workstation enumerating hosts, shares, accounts and privileged groups within a few minutes is either a security tool, an administrator with a script, or an intruder orienting after initial access, and the three are easy to separate by asking who owns the source.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+      "excerpt": "src_ip=10.20.4.17",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+      "excerpt": "dst_port=1",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature",
+      "excerpt": "signature=cic-ids2017:recon",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=1.0 confidence=0.989 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ],
+    "grounded": true,
+    "model_version": "investigation-1",
+    "created_at": "2026-09-29T09:00:08.219000+00:00"
+   },
+   "actions_detail": [
+    {
+     "action_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "action_type": "block_ip",
+     "destructive": true,
+     "target": "10.20.4.17",
+     "target_asset": {
+      "address": "10.20.4.17",
+      "hostname": "ws-fin-07",
+      "role": "finance workstation",
+      "protected": false
+     },
+     "rationale": "Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+     "proposed_by": "containment_agent",
+     "risk_tier": "recommend",
+     "requires_human_approval": true,
+     "status": "rejected",
+     "approved_by": "maya@acme.example",
+     "decided_at": "2026-09-29T09:00:48.391000+00:00",
+     "executed_at": null,
+     "failure_reason": null,
+     "created_at": "2026-09-29T09:00:08.219000+00:00",
+     "evidence": [
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1046#description.0",
+       "excerpt": "Scanning inside the network to find reachable services and versions, which is how an adversary converts a single foothold into a map of exploitable targets.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1046#detection.1",
+       "excerpt": "Internal source addresses contacting many destination ports or many destination hosts with a high proportion of failed handshakes. East-west flow records are the right telemetry; perimeter logs never see this.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "kb_chunk",
+       "ref": "kb://playbook/PB-SCAN-TRIAGE#description.0",
+       "excerpt": "Discovery activity is individually benign and collectively decisive. A workstation enumerating hosts, shares, accounts and privileged groups within a few minutes is either a security tool, an administrator with a script, or an intruder orienting after initial access, and the three are easy to separate by asking who owns the source.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#src_ip",
+       "excerpt": "src_ip=10.20.4.17",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_ip",
+       "excerpt": "dst_ip=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#dst_port",
+       "excerpt": "dst_port=1",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#protocol",
+       "excerpt": "protocol=tcp",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#asset_id",
+       "excerpt": "asset_id=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://c5b90818-738f-58e8-9f7d-391574e00321#signature",
+       "excerpt": "signature=cic-ids2017:recon",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "model_output",
+       "ref": "model://triage-1#anomaly_score",
+       "excerpt": "anomaly_score=1.0 confidence=0.989 decision=escalate",
+       "relevance": 1.0,
+       "untrusted": true
+      }
+     ]
+    }
+   ],
+   "interrupt": null,
+   "history": [
+    {
+     "node": "triage",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.203000+00:00",
+     "ended_at": "2026-09-29T09:00:08.203000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "investigate",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.219000+00:00",
+     "ended_at": "2026-09-29T09:00:08.219000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "contain",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.219000+00:00",
+     "ended_at": "2026-09-29T09:00:08.219000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "approve",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:48.391000+00:00",
+     "ended_at": "2026-09-29T09:00:48.391000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    }
+   ],
+   "trust_tier": "recommend",
+   "checkpoints": {
+    "count": 6,
+    "verified": true,
+    "error": null
+   },
+   "timings": {
+    "detect_seconds": 0.062,
+    "pipeline_detect_seconds": 0.062,
+    "feed_lag_seconds": 0.0,
+    "contain_seconds": null,
+    "approval_wait_seconds": 40.172
+   },
+   "timeline": [
+    {
+     "seq": 5,
+     "recorded_at": "2026-09-29T09:00:08.203000Z",
+     "event_type": "triage_decided",
+     "actor": "triage_agent",
+     "subject_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+     "payload": {
+      "anomaly_score": 1.0,
+      "confidence": 0.9894933504348918,
+      "decision": "escalate",
+      "model_version": "triage-1",
+      "severity": "medium",
+      "technique_id": "T1046"
+     },
+     "row_hash": "54b197b8f2f0c2a3d2e7491af6265f262a4d8e3a4d7d394b966ba4468972a36f",
+     "prev_hash": "9bb29f15665b6b6686736b93287a88b53ad271b448d4b6abf8337e02ea7fe106"
+    },
+    {
+     "seq": 6,
+     "recorded_at": "2026-09-29T09:00:08.219000Z",
+     "event_type": "investigation_completed",
+     "actor": "investigation_agent",
+     "subject_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+     "payload": {
+      "grounded": true,
+      "n_claims": 4,
+      "n_evidence": 10,
+      "report_id": "51fb82f4-119c-5ba1-ac37-c5cce090790f",
+      "techniques": [
+       "T1046"
+      ]
+     },
+     "row_hash": "257a3798562378499e7deab22a2a7d66461ae39159ea9e65fc5f498b36dcd3c2",
+     "prev_hash": "54b197b8f2f0c2a3d2e7491af6265f262a4d8e3a4d7d394b966ba4468972a36f"
+    },
+    {
+     "seq": 7,
+     "recorded_at": "2026-09-29T09:00:08.219000Z",
+     "event_type": "action_proposed",
+     "actor": "containment_agent",
+     "subject_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "payload": {
+      "action_type": "block_ip",
+      "alert_id": "c5b90818-738f-58e8-9f7d-391574e00321",
+      "exploratory": false,
+      "policy": {
+       "choice": "escalate",
+       "confidence": 0.384239,
+       "expected": {
+        "dismiss": -0.306189,
+        "escalate": 0.330069,
+        "monitor": -0.074955
+       },
+       "exploratory": false,
+       "fitted": true,
+       "floored": false,
+       "response": "escalate"
+      },
+      "requires_human_approval": true,
+      "response": "escalate",
+      "risk_tier": "recommend",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "27a672069958292d2b96e5e85258f08d0fd4f72fe713d3b0aa7d989c3601aa86",
+     "prev_hash": "257a3798562378499e7deab22a2a7d66461ae39159ea9e65fc5f498b36dcd3c2"
+    },
+    {
+     "seq": 8,
+     "recorded_at": "2026-09-29T09:00:08.219000Z",
+     "event_type": "approval_requested",
+     "actor": "containment_agent",
+     "subject_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "payload": {
+      "action_type": "block_ip",
+      "rationale": "Policy chose escalate (confidence 0.38) for a medium alert triaged escalate and mapped to T1046. Proposed action: block_ip.",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "3001902abb00761c3bf50c66a6480f16ba5bc12efa04b38748a777390362d42a",
+     "prev_hash": "27a672069958292d2b96e5e85258f08d0fd4f72fe713d3b0aa7d989c3601aa86"
+    },
+    {
+     "seq": 16,
+     "recorded_at": "2026-09-29T09:00:48.391000Z",
+     "event_type": "approval_denied",
+     "actor": "orchestrator",
+     "subject_id": "fef31609-120e-4d1b-ae5e-4e2e487e044e",
+     "payload": {
+      "action_type": "block_ip",
+      "approved": false,
+      "approver": "maya@acme.example",
+      "note": "reviewed in the dashboard",
+      "target": "10.20.4.17"
+     },
+     "row_hash": "0192ba6a8ac071d55736b537e10ac3131a18fb26ddfab87436b16faeceb65bd3",
+     "prev_hash": "cb28cd5d810a7a6a928db8420b042325175f6f09ff5df8fa7424d0ba507370c5"
+    }
+   ],
+   "wire": {
+    "calls": [],
+    "refusals": [],
+    "executions": []
+   },
+   "policy": {
+    "choice": "escalate",
+    "confidence": 0.384239,
+    "expected": {
+     "dismiss": -0.306189,
+     "escalate": 0.330069,
+     "monitor": -0.074955
+    },
+    "exploratory": false,
+    "fitted": true,
+    "floored": false,
+    "response": "escalate",
+    "seq": 7
+   },
+   "stalled": false
+  },
+  "f5b10e9d-25b9-55fa-ad6f-90852d2aac13": {
+   "incident_id": "f5b10e9d-25b9-55fa-ad6f-90852d2aac13",
+   "kind": "incident",
+   "scenario": "phishing-lateral",
+   "caption": "Credential burst against fs-01 from the IT jump host",
+   "advisory_id": null,
+   "status": "completed",
+   "severity": "high",
+   "decision": "escalate",
+   "confidence": 0.9999847280827058,
+   "technique_id": "T1110",
+   "injection_verdict": "clean",
+   "source": "network_ids",
+   "asset": {
+    "address": "10.20.1.10",
+    "hostname": "fs-01",
+    "role": "file server",
+    "protected": false
+   },
+   "src_ip": "10.20.0.5",
+   "dst_ip": "10.20.1.10",
+   "created_at": "2026-09-29T09:00:08.141000+00:00",
+   "updated_at": "2026-09-29T09:00:28.360000+00:00",
+   "pending_action": null,
+   "actions": [
+    {
+     "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "action_type": "block_ip",
+     "target": "10.20.0.5",
+     "status": "failed"
+    }
+   ],
+   "failed_actions": 1,
+   "detect_seconds": 0.094,
+   "contain_seconds": 20.125,
+   "error": null,
+   "alert": {
+    "alert_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+    "source": "network_ids",
+    "timestamp": "2026-09-29T08:58:38.141000+00:00",
+    "ingested_at": "2026-09-29T09:00:08.141000+00:00",
+    "asset": {
+     "address": "10.20.1.10",
+     "hostname": "fs-01",
+     "role": "file server",
+     "protected": false
+    },
+    "signature": "cic-ids2017:brute_force",
+    "src_ip": "10.20.0.5",
+    "dst_ip": "10.20.1.10",
+    "src_port": 57607,
+    "dst_port": 21,
+    "protocol": "tcp",
+    "dataset": "cic-ids2017",
+    "raw_payload": "{\" Destination IP\":\"10.20.1.10\",\" Destination Port\":21,\" Flow Duration\":51853,\" Flow Packets/s\":578.5513938444258,\" Label\":\"SSH-Patator\",\" Protocol\":6,\" Source IP\":\"10.20.0.5\",\" Source Port\":57607,\" Timestamp\":\"29/09/2026 08:58:38\",\" Total Backward Packets\":0,\" Total Fwd Packets\":30,\" Total Length of Bwd Packets\":0,\"Flow Bytes/s\":29833.966875910894,\"Flow ID\":\"synthetic-2741\",\"Total Length of Fwd Packets\":1547}",
+    "untrusted": true,
+    "injection": {
+     "verdict": "clean",
+     "summary": "clean (score=0.00)",
+     "sha256": "cb3c73c08cea49f82803ab3769a15e67bb16ba7a2ae72ffe62916eeaa53388de"
+    },
+    "features": {
+     "bytes_per_second": 29834.339382485105,
+     "bytes_ratio_src_to_total": 1.0,
+     "dst_bytes": 0.0,
+     "dst_distinct_src_ips_window": 1.0,
+     "dst_flow_count_window": 34.0,
+     "dst_mean_packet_bytes": 0.0,
+     "dst_packets": 0.0,
+     "dst_port": 21,
+     "duration_seconds": 0.051852999999999996,
+     "packets_per_second": 578.5586176306097,
+     "protocol_number": 6,
+     "src_bytes": 1547.0,
+     "src_bytes_sum_window": 123591.0,
+     "src_distinct_dst_ips_window": 1.0,
+     "src_distinct_dst_ports_window": 1.0,
+     "src_flow_count_window": 34.0,
+     "src_interarrival_cv_window": 1.7677669529663689,
+     "src_interarrival_mean_window": 0.24242424242424243,
+     "src_mean_packet_bytes": 51.56666666666667,
+     "src_packets": 30.0,
+     "total_bytes": 1547.0,
+     "total_packets": 30.0
+    }
+   },
+   "triage": {
+    "decision": "escalate",
+    "severity": "high",
+    "confidence": 0.9999847280827058,
+    "technique_id": "T1110",
+    "rationale": "Anomaly ensemble scored 0.998 (escalate>=0.995, monitor>=0.985). Classifier: brute_force at p=1.000. Decision: escalate.",
+    "supporting_fields": [
+     "src_flow_count_window",
+     "dst_port",
+     "src_interarrival_cv_window"
+    ],
+    "anomaly_score": 0.9982756281647509,
+    "injection_verdict": "clean",
+    "model_version": "triage-1",
+    "latency_ms": 0.0,
+    "decided_at": "2026-09-29T09:00:08.235000+00:00"
+   },
+   "report": {
+    "report_id": "5ea2ca9a-66f8-5b14-9cc5-d5dcc30c9475",
+    "agent": "investigation_agent",
+    "summary": "HIGH \u2014 escalate on asset 10.20.1.10 mapped to T1110. Anomaly ensemble scored 0.998 (escalate>=0.995, monitor>=0.985). Classifier: brute_force at p=1.000. Decision: escalate.",
+    "severity": "high",
+    "confidence": 0.9999847280827058,
+    "techniques": [
+     "T1110",
+     "T1110.003",
+     "T1110.004"
+    ],
+    "recommended_actions": [
+     "block_ip",
+     "disable_account"
+    ],
+    "claims": [
+     {
+      "statement": "The detection ensemble scored this flow 0.998 and triage decided escalate at confidence 1.00.",
+      "refs": [
+       "model://triage-1#anomaly_score"
+      ]
+     },
+     {
+      "statement": "The activity involves asset 10.20.1.10 and is recorded on the network_ids feed.",
+      "refs": [
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature"
+      ]
+     },
+     {
+      "statement": "The observed pattern maps to MITRE ATT&CK T1110, supported by src_flow_count_window, dst_port, src_interarrival_cv_window.",
+      "refs": [
+       "kb://technique/T1110#description.0",
+       "kb://technique/T1110#detection.1",
+       "kb://technique/T1110.003#description.0",
+       "kb://technique/T1110.004#description.0",
+       "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port"
+      ]
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#description.0",
+      "excerpt": "Repeated authentication attempts to discover valid credentials, whether by guessing many passwords against one account, one common password against many accounts, or replaying credential pairs leaked elsewhere.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110#detection.1",
+      "excerpt": "Count failures per source and per account over a sliding window, and count distinct accounts attempted per source. The spraying variant is invisible to per-account lockout thresholds, so distinct-account fan-out is the signal that catches it.",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.003#description.0",
+      "excerpt": "Trying a small number of likely passwords across a large number of accounts, staying below per-account lockout thresholds while still succeeding somewhere in a large directory.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "attack_technique",
+      "ref": "kb://technique/T1110.004#description.0",
+      "excerpt": "Replay of username and password pairs harvested from unrelated breaches against the victim's services, exploiting password reuse rather than any weakness in the target.",
+      "relevance": 0.8,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+      "excerpt": "src_ip=10.20.0.5",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+      "excerpt": "dst_ip=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+      "excerpt": "dst_port=21",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+      "excerpt": "protocol=tcp",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+      "excerpt": "asset_id=10.20.1.10",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "alert_field",
+      "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature",
+      "excerpt": "signature=cic-ids2017:brute_force",
+      "relevance": 1.0,
+      "untrusted": true
+     },
+     {
+      "kind": "model_output",
+      "ref": "model://triage-1#anomaly_score",
+      "excerpt": "anomaly_score=0.9982756281647509 confidence=1.000 decision=escalate",
+      "relevance": 1.0,
+      "untrusted": true
+     }
+    ],
+    "grounded": true,
+    "model_version": "investigation-1",
+    "created_at": "2026-09-29T09:00:08.235000+00:00"
+   },
+   "actions_detail": [
+    {
+     "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "action_type": "block_ip",
+     "destructive": true,
+     "target": "10.20.0.5",
+     "target_asset": {
+      "address": "10.20.0.5",
+      "hostname": "jump-01",
+      "role": "IT jump host",
+      "protected": true
+     },
+     "rationale": "Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+     "proposed_by": "containment_agent",
+     "risk_tier": "recommend",
+     "requires_human_approval": true,
+     "status": "failed",
+     "approved_by": "maya@acme.example",
+     "decided_at": "2026-09-29T09:00:28.344000+00:00",
+     "executed_at": "2026-09-29T09:00:28.344000+00:00",
+     "failure_reason": "TargetRejected: 10.20.0.5 is inside protected network 10.20.0.0/28; block_ip against it is refused regardless of approval",
+     "created_at": "2026-09-29T09:00:08.250000+00:00",
+     "evidence": [
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110#description.0",
+       "excerpt": "Repeated authentication attempts to discover valid credentials, whether by guessing many passwords against one account, one common password against many accounts, or replaying credential pairs leaked elsewhere.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110#detection.1",
+       "excerpt": "Count failures per source and per account over a sliding window, and count distinct accounts attempted per source. The spraying variant is invisible to per-account lockout thresholds, so distinct-account fan-out is the signal that catches it.",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110.003#description.0",
+       "excerpt": "Trying a small number of likely passwords across a large number of accounts, staying below per-account lockout thresholds while still succeeding somewhere in a large directory.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "attack_technique",
+       "ref": "kb://technique/T1110.004#description.0",
+       "excerpt": "Replay of username and password pairs harvested from unrelated breaches against the victim's services, exploiting password reuse rather than any weakness in the target.",
+       "relevance": 0.8,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#src_ip",
+       "excerpt": "src_ip=10.20.0.5",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_ip",
+       "excerpt": "dst_ip=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#dst_port",
+       "excerpt": "dst_port=21",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#protocol",
+       "excerpt": "protocol=tcp",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#asset_id",
+       "excerpt": "asset_id=10.20.1.10",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "alert_field",
+       "ref": "alert://2f77e8c9-e6f0-57b1-a843-8a762ba859eb#signature",
+       "excerpt": "signature=cic-ids2017:brute_force",
+       "relevance": 1.0,
+       "untrusted": true
+      },
+      {
+       "kind": "model_output",
+       "ref": "model://triage-1#anomaly_score",
+       "excerpt": "anomaly_score=0.9982756281647509 confidence=1.000 decision=escalate",
+       "relevance": 1.0,
+       "untrusted": true
+      }
+     ]
+    }
+   ],
+   "interrupt": null,
+   "history": [
+    {
+     "node": "triage",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.235000+00:00",
+     "ended_at": "2026-09-29T09:00:08.235000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "investigate",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.235000+00:00",
+     "ended_at": "2026-09-29T09:00:08.235000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "contain",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:08.250000+00:00",
+     "ended_at": "2026-09-29T09:00:08.250000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "approve",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:28.344000+00:00",
+     "ended_at": "2026-09-29T09:00:28.344000+00:00",
+     "duration_ms": 0.0,
+     "detail": ""
+    },
+    {
+     "node": "execute",
+     "outcome": "ok",
+     "started_at": "2026-09-29T09:00:28.344000+00:00",
+     "ended_at": "2026-09-29T09:00:28.360000+00:00",
+     "duration_ms": 16.0,
+     "detail": ""
+    }
+   ],
+   "trust_tier": "recommend",
+   "checkpoints": {
+    "count": 7,
+    "verified": true,
+    "error": null
+   },
+   "timings": {
+    "detect_seconds": 0.094,
+    "pipeline_detect_seconds": 0.094,
+    "feed_lag_seconds": 0.0,
+    "contain_seconds": 20.125,
+    "approval_wait_seconds": 20.094
+   },
+   "timeline": [
+    {
+     "seq": 9,
+     "recorded_at": "2026-09-29T09:00:08.235000Z",
+     "event_type": "triage_decided",
+     "actor": "triage_agent",
+     "subject_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+     "payload": {
+      "anomaly_score": 0.9982756281647509,
+      "confidence": 0.9999847280827058,
+      "decision": "escalate",
+      "model_version": "triage-1",
+      "severity": "high",
+      "technique_id": "T1110"
+     },
+     "row_hash": "952a8c1512326d56b58612148bd4ec593c5a7aec9f0a772a60c27e644a0bdadb",
+     "prev_hash": "3001902abb00761c3bf50c66a6480f16ba5bc12efa04b38748a777390362d42a"
+    },
+    {
+     "seq": 10,
+     "recorded_at": "2026-09-29T09:00:08.235000Z",
+     "event_type": "investigation_completed",
+     "actor": "investigation_agent",
+     "subject_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+     "payload": {
+      "grounded": true,
+      "n_claims": 3,
+      "n_evidence": 11,
+      "report_id": "5ea2ca9a-66f8-5b14-9cc5-d5dcc30c9475",
+      "techniques": [
+       "T1110",
+       "T1110.003",
+       "T1110.004"
+      ]
+     },
+     "row_hash": "e1d1da8c6a9c7fcba4f5956d60a2a04573f868e27826222e2512b62781d384e3",
+     "prev_hash": "952a8c1512326d56b58612148bd4ec593c5a7aec9f0a772a60c27e644a0bdadb"
+    },
+    {
+     "seq": 11,
+     "recorded_at": "2026-09-29T09:00:08.250000Z",
+     "event_type": "action_proposed",
+     "actor": "containment_agent",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "action_type": "block_ip",
+      "alert_id": "2f77e8c9-e6f0-57b1-a843-8a762ba859eb",
+      "exploratory": false,
+      "policy": {
+       "choice": "escalate",
+       "confidence": 0.409265,
+       "expected": {
+        "dismiss": -0.533436,
+        "escalate": 0.295808,
+        "monitor": -0.13892
+       },
+       "exploratory": false,
+       "fitted": true,
+       "floored": false,
+       "response": "escalate"
+      },
+      "requires_human_approval": true,
+      "response": "escalate",
+      "risk_tier": "recommend",
+      "target": "10.20.0.5"
+     },
+     "row_hash": "763d733e62750d6a3c9fb19d07129acc65c67606c597d6b060acd0f4944e6799",
+     "prev_hash": "e1d1da8c6a9c7fcba4f5956d60a2a04573f868e27826222e2512b62781d384e3"
+    },
+    {
+     "seq": 12,
+     "recorded_at": "2026-09-29T09:00:08.250000Z",
+     "event_type": "approval_requested",
+     "actor": "containment_agent",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "action_type": "block_ip",
+      "rationale": "Policy chose escalate (confidence 0.41) for a high alert triaged escalate and mapped to T1110. Proposed action: block_ip.",
+      "target": "10.20.0.5"
+     },
+     "row_hash": "109e2084c03983cd54557b4fcf6ae7e99449e068b6440ecf89d8a204eb7cfa35",
+     "prev_hash": "763d733e62750d6a3c9fb19d07129acc65c67606c597d6b060acd0f4944e6799"
+    },
+    {
+     "seq": 13,
+     "recorded_at": "2026-09-29T09:00:28.344000Z",
+     "event_type": "approval_granted",
+     "actor": "orchestrator",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "action_type": "block_ip",
+      "approved": true,
+      "approver": "maya@acme.example",
+      "note": "reviewed in the dashboard",
+      "target": "10.20.0.5"
+     },
+     "row_hash": "d232554f4e1c584d1f462f58e8df9843ff557935516e4b9b5ed68594726a5e4a",
+     "prev_hash": "109e2084c03983cd54557b4fcf6ae7e99449e068b6440ecf89d8a204eb7cfa35"
+    },
+    {
+     "seq": 14,
+     "recorded_at": "2026-09-29T09:00:28.344000Z",
+     "event_type": "guardrail_blocked",
+     "actor": "connector:wazuh",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "action_type": "block_ip",
+      "guardrail": "TargetRejected",
+      "reason": "TargetRejected: 10.20.0.5 is inside protected network 10.20.0.0/28; block_ip against it is refused regardless of approval"
+     },
+     "row_hash": "11185d34e79e0f2ffa14cedea2d3f038da0664ccbefa561e954657435df8ea2a",
+     "prev_hash": "d232554f4e1c584d1f462f58e8df9843ff557935516e4b9b5ed68594726a5e4a"
+    },
+    {
+     "seq": 15,
+     "recorded_at": "2026-09-29T09:00:28.360000Z",
+     "event_type": "action_failed",
+     "actor": "containment_agent",
+     "subject_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+     "payload": {
+      "reason": "TargetRejected: 10.20.0.5 is inside protected network 10.20.0.0/28; block_ip against it is refused regardless of approval"
+     },
+     "row_hash": "cb28cd5d810a7a6a928db8420b042325175f6f09ff5df8fa7424d0ba507370c5",
+     "prev_hash": "11185d34e79e0f2ffa14cedea2d3f038da0664ccbefa561e954657435df8ea2a"
+    }
+   ],
+   "wire": {
+    "calls": [],
+    "refusals": [
+     {
+      "seq": 14,
+      "recorded_at": "2026-09-29T09:00:28.344000Z",
+      "action_id": "84412c60-45cd-409b-8c2e-d5b4c58fd940",
+      "actor": "connector:wazuh",
+      "action_type": "block_ip",
+      "guardrail": "TargetRejected",
+      "reason": "TargetRejected: 10.20.0.5 is inside protected network 10.20.0.0/28; block_ip against it is refused regardless of approval"
+     }
+    ],
+    "executions": []
+   },
+   "policy": {
+    "choice": "escalate",
+    "confidence": 0.409265,
+    "expected": {
+     "dismiss": -0.533436,
+     "escalate": 0.295808,
+     "monitor": -0.13892
+    },
+    "exploratory": false,
+    "fitted": true,
+    "floored": false,
+    "response": "escalate",
+    "seq": 11
+   },
+   "stalled": false
+  }
+ },
+ "scenarios_after": [
+  {
+   "name": "phishing-lateral",
+   "title": "Phishing to lateral movement",
+   "summary": "A finance user follows a credential-phishing link. Network telemetry cannot see the click; the mesh first sees ws-fin-07 pull a second stage, then sweep the file server, then a burst of logins against it from the IT jump host using harvested admin credentials.",
+   "walkthrough": [
+    "Launch. Three flows arrive; triage escalates each, investigation cites the raw log lines and ATT&CK, containment proposes an action for each.",
+    "Approve isolating ws-fin-07 (10.20.4.17) \u2014 the foothold.",
+    "Decide the block of 10.20.4.17 raised by the discovery sweep; it is redundant once the host is isolated, so rejecting it is reasonable.",
+    "Approve blocking 10.20.0.5. The router refuses it: the jump host is protected infrastructure. The run completes with a FAILED action and the refusal reason \u2014 the guardrail firing where you can see it.",
+    "Open the audit timeline: every approval names you, and the chain verifies."
+   ],
+   "agents": [
+    "triage",
+    "investigation",
+    "containment"
+   ],
+   "launched": true,
+   "launched_at": "2026-09-29T09:00:08.141000+00:00",
+   "launched_by": "maya@acme.example",
+   "complete": true,
+   "total": 3,
+   "waiting": 0,
+   "running": 0,
+   "finished": 3,
+   "failed_runs": 0,
+   "failed_actions": 1,
+   "decisions": 3,
+   "threads": [
+    {
+     "incident_id": "7987e00e-24b7-5821-b85a-8854c219faf6",
+     "caption": "Second-stage fetch from ws-fin-07 after the phishing click",
+     "kind": "incident",
+     "status": "completed"
+    },
+    {
+     "incident_id": "adea062c-38b4-5fdc-ae78-3196075840f0",
+     "caption": "Internal discovery sweep from ws-fin-07 against fs-01",
+     "kind": "incident",
+     "status": "completed"
+    },
+    {
+     "incident_id": "f5b10e9d-25b9-55fa-ad6f-90852d2aac13",
+     "caption": "Credential burst against fs-01 from the IT jump host",
+     "kind": "incident",
+     "status": "completed"
+    }
+   ]
+  },
+  {
+   "name": "vendor-cve",
+   "title": "Vendor-dependency CVE",
+   "summary": "Four CVEs are disclosed together in an archived package that sits four hops below several organisations, inside their vendors' dependency trees \u2014 the exposure no vendor questionnaire reaches. The same morning, the Code-Scan Agent reviews acme/billing and maps its findings to CVEs.",
+   "walkthrough": [
+    "Launch. The advisory lands on the graph; the GNN re-scores it and the Supply-Chain Agent reviews everything the package reaches.",
+    "Open the supply-chain map: the fourth-order path from the package to each organisation is drawn, and every flag cites the path that drove it.",
+    "Approve the remediation: a tracking issue is opened in GitHub (the dependency change itself is not invented \u2014 the graph is synthetic).",
+    "Open the code-scan view: read the draft PR body and diff, then approve. The PR is opened as a draft and never merged."
+   ],
+   "agents": [
+    "supply-chain",
+    "code-scan"
+   ],
+   "launched": false,
+   "launched_at": null,
+   "launched_by": null,
+   "complete": false,
+   "total": 0,
+   "waiting": 0,
+   "running": 0,
+   "finished": 0,
+   "failed_runs": 0,
+   "failed_actions": 0,
+   "decisions": 0,
+   "threads": []
+  },
+  {
+   "name": "malicious-package",
+   "title": "Malicious open-source package",
+   "summary": "A widely used, long-abandoned package changes hands and ships a release that steals CI secrets. ci-runner-03 installed it: its install script posts the build environment to an external host, and the request carries a note addressed to AI security scanners asking them not to escalate.",
+   "walkthrough": [
+    "Launch. The MAL advisory re-scores the graph; the exfiltration flow from ci-runner-03 enters the incident graph.",
+    "Open the incident: the payload's note to 'AI scanners' is flagged as a prompt injection and forced to escalate \u2014 it is shown as inert text.",
+    "Approve isolating ci-runner-03 (10.20.8.30).",
+    "Approve the supply-chain remediation for the package; review its reach on the map."
+   ],
+   "agents": [
+    "triage",
+    "investigation",
+    "containment",
+    "supply-chain"
+   ],
+   "launched": false,
+   "launched_at": null,
+   "launched_by": null,
+   "complete": false,
+   "total": 0,
+   "waiting": 0,
+   "running": 0,
+   "finished": 0,
+   "failed_runs": 0,
+   "failed_actions": 0,
+   "decisions": 0,
+   "threads": []
+  }
+ ],
+ "overview": {
+  "tenant_id": "acme",
+  "incidents": 3,
+  "by_status": {
+   "completed": 3
+  },
+  "queue": 0,
+  "stalled": 0,
+  "alerts_ingested": 3,
+  "alerts_reaching_human": 3,
+  "alert_reduction": 0.0,
+  "mttd_seconds": 0.06233333333333333,
+  "mttc_seconds": 40.211,
+  "audit": {
+   "ok": true,
+   "status": "verified",
+   "rows": 21,
+   "head_seq": 21,
+   "head_hash": "c57d0f2d41e131f03b017ef16a743bebbd8fd6edc741bc99eb56a501f890dd92",
+   "findings": [],
+   "duration_ms": 0.0,
+   "summary": "OK: 21 rows verified in 0.0 ms (head seq=21)"
+  },
+  "ungated_executions": [],
+  "failed_actions": 1,
+  "refusals": 1,
+  "feed_remaining": 3723,
+  "scenarios": [
+   {
+    "name": "phishing-lateral",
+    "title": "Phishing to lateral movement",
+    "summary": "A finance user follows a credential-phishing link. Network telemetry cannot see the click; the mesh first sees ws-fin-07 pull a second stage, then sweep the file server, then a burst of logins against it from the IT jump host using harvested admin credentials.",
+    "walkthrough": [
+     "Launch. Three flows arrive; triage escalates each, investigation cites the raw log lines and ATT&CK, containment proposes an action for each.",
+     "Approve isolating ws-fin-07 (10.20.4.17) \u2014 the foothold.",
+     "Decide the block of 10.20.4.17 raised by the discovery sweep; it is redundant once the host is isolated, so rejecting it is reasonable.",
+     "Approve blocking 10.20.0.5. The router refuses it: the jump host is protected infrastructure. The run completes with a FAILED action and the refusal reason \u2014 the guardrail firing where you can see it.",
+     "Open the audit timeline: every approval names you, and the chain verifies."
+    ],
+    "agents": [
+     "triage",
+     "investigation",
+     "containment"
+    ],
+    "launched": true,
+    "launched_at": "2026-09-29T09:00:08.141000+00:00",
+    "launched_by": "maya@acme.example",
+    "complete": true,
+    "total": 3,
+    "waiting": 0,
+    "running": 0,
+    "finished": 3,
+    "failed_runs": 0,
+    "failed_actions": 1,
+    "decisions": 3,
+    "threads": [
+     {
+      "incident_id": "7987e00e-24b7-5821-b85a-8854c219faf6",
+      "caption": "Second-stage fetch from ws-fin-07 after the phishing click",
+      "kind": "incident",
+      "status": "completed"
+     },
+     {
+      "incident_id": "adea062c-38b4-5fdc-ae78-3196075840f0",
+      "caption": "Internal discovery sweep from ws-fin-07 against fs-01",
+      "kind": "incident",
+      "status": "completed"
+     },
+     {
+      "incident_id": "f5b10e9d-25b9-55fa-ad6f-90852d2aac13",
+      "caption": "Credential burst against fs-01 from the IT jump host",
+      "kind": "incident",
+      "status": "completed"
+     }
+    ]
+   },
+   {
+    "name": "vendor-cve",
+    "title": "Vendor-dependency CVE",
+    "summary": "Four CVEs are disclosed together in an archived package that sits four hops below several organisations, inside their vendors' dependency trees \u2014 the exposure no vendor questionnaire reaches. The same morning, the Code-Scan Agent reviews acme/billing and maps its findings to CVEs.",
+    "walkthrough": [
+     "Launch. The advisory lands on the graph; the GNN re-scores it and the Supply-Chain Agent reviews everything the package reaches.",
+     "Open the supply-chain map: the fourth-order path from the package to each organisation is drawn, and every flag cites the path that drove it.",
+     "Approve the remediation: a tracking issue is opened in GitHub (the dependency change itself is not invented \u2014 the graph is synthetic).",
+     "Open the code-scan view: read the draft PR body and diff, then approve. The PR is opened as a draft and never merged."
+    ],
+    "agents": [
+     "supply-chain",
+     "code-scan"
+    ],
+    "launched": false,
+    "launched_at": null,
+    "launched_by": null,
+    "complete": false,
+    "total": 0,
+    "waiting": 0,
+    "running": 0,
+    "finished": 0,
+    "failed_runs": 0,
+    "failed_actions": 0,
+    "decisions": 0,
+    "threads": []
+   },
+   {
+    "name": "malicious-package",
+    "title": "Malicious open-source package",
+    "summary": "A widely used, long-abandoned package changes hands and ships a release that steals CI secrets. ci-runner-03 installed it: its install script posts the build environment to an external host, and the request carries a note addressed to AI security scanners asking them not to escalate.",
+    "walkthrough": [
+     "Launch. The MAL advisory re-scores the graph; the exfiltration flow from ci-runner-03 enters the incident graph.",
+     "Open the incident: the payload's note to 'AI scanners' is flagged as a prompt injection and forced to escalate \u2014 it is shown as inert text.",
+     "Approve isolating ci-runner-03 (10.20.8.30).",
+     "Approve the supply-chain remediation for the package; review its reach on the map."
+    ],
+    "agents": [
+     "triage",
+     "investigation",
+     "containment",
+     "supply-chain"
+    ],
+    "launched": false,
+    "launched_at": null,
+    "launched_by": null,
+    "complete": false,
+    "total": 0,
+    "waiting": 0,
+    "running": 0,
+    "finished": 0,
+    "failed_runs": 0,
+    "failed_actions": 0,
+    "decisions": 0,
+    "threads": []
+   }
+  ],
+  "data": {
+   "mode": "synthetic",
+   "has_addresses": false
+  }
+ }
+}

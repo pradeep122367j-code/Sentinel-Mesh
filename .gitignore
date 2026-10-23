@@ -26,3 +26,7 @@ data/real/*
 # demo identity provider accounts (password hashes and TOTP secrets)
 data/dev-idp-accounts.json
 data/dev-idp-credentials.txt
+
+# DUMP directory
+DUMP/
+
